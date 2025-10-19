@@ -113,7 +113,7 @@ export async function analizewithOpenAI(text) {
       didOpen: () => Swal.showLoading()
     });
 
-    const data = await storageGet(['openai_api_key']);
+    const data = await storageGet(['openai_key']);
     const key = data.openai_api_key;
     if (!key) {
       result.innerText = 'No hay OpenAI API key configurada. Abre Opciones y pega tu clave.';
