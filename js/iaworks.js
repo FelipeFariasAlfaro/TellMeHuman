@@ -114,7 +114,7 @@ export async function analizewithOpenAI(text) {
     });
 
     const data = await storageGet(['openai_key']);
-    const key = data.openai_api_key;
+    const key = data.openai_key;
     if (!key) {
       result.innerText = 'No hay OpenAI API key configurada. Abre Opciones y pega tu clave.';
       btn.disabled = false;
