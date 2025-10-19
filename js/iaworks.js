@@ -113,8 +113,10 @@ export async function analizewithOpenAI(text) {
       didOpen: () => Swal.showLoading()
     });
 
-    const data = await storageGet(['openai_key']);
-    const key = data.openai_key;
+    //const data = await storageGet(['openai_key']);
+    ///const key = data.openai_key;
+    const { openai_key } = await chrome.storage.sync.get(['openai_key']);
+    const key = openai_key;
     if (!key) {
       result.innerText = 'No hay OpenAI API key configurada. Abre Opciones y pega tu clave.';
       btn.disabled = false;
