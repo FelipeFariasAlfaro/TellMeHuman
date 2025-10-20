@@ -1,14 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Detector IA - Sidepanel",
-  "version": "0.1",
+  "name": "Tell Me Human",
+  "version": "0.1.5",
   "permissions": [
     "contextMenus",
     "storage",
     "sidePanel",
+    "tabs",
     "activeTab",
     "scripting"
   ],
+  "icons": {
+    "16": "img/16x16.png",
+    "48": "img/48x48.png",
+    "128": "img/128x128.png"
+  },
   "side_panel": {
     "default_path": "sidepanel.html"
   },

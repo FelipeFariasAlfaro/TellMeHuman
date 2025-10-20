@@ -11,6 +11,7 @@
     <script src="js/jquey.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/swal.js"></script>
+    
     <style>
         .gauge-container {
             overflow: visible;
@@ -31,39 +32,42 @@
         <div class="container-fluid">
             <div class="row" style="margin-top: 10px;">
                 <div class="col-12 text-center">
-                    <img src="img/logo HakaBoost.png" width="180px">
-                    <p id="title_main">TellMeHuman</p>
+                    <img src="img/logoOriginal.png" width="50px">
+                    <h5 id="title_main">TellMeHuman</h5>
                 </div>
             </div>
             <ul class="nav nav-tabs" style="margin-top: 5px;">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#main" id="copilot">Analizador</a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#main" id="copilot"><img src="img/dialogo.png"
+                            width="34px"></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#otra" id="configuraciones">Configuraciones</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#otra" id="configuraciones"><img
+                            src="img/engranaje.png" width="24px"></a>
                 </li>
 
             </ul>
         </div>
         <div class="tab-content">
             <div id="main" class="tab-pane fade show active container">
-                <div class="row mt-2">
+                <div class="row mt-3">
 
-                    <div class="col-12">
-                        <span class="badge bg-secondary"><strong>Detector </strong> Chrome IA</span>
+                    <div class="col-12 text-end">
+                        <span class="badge bg-secondary">Detector: Chrome IA</span>
                     </div>
 
-
-                    <div class="col-12 mt-4">
+                    <div class="col-12 mt-3">
                         <div class="mb-3">
-                            <textarea id="text" class="form-control" rows="6" placeholder="Escribe o pega el texto aquí, tambien puedes seleccionar un texto, presionar el click derecho del mouse y seleccionar -Analizar con TellMeHuman-..."
+                            <textarea id="text" class="form-control" rows="6"
+                                placeholder="Escribe o pega el texto aquí, tambien puedes seleccionar un texto, presionar el click derecho del mouse y seleccionar -Analizar con TellMeHuman-..."
                                 aria-describedby="helpBlock"></textarea>
-                            <div class="form-text"><span id="counter">1000</span>/1000</div>
+                            <div class="form-text"><span id="counter">2000</span>/2000</div>
 
-                            <button id="analyze" class="btn btn-sm btn-success my-3 mb-3">Analizar <i
-                                    class="fa fa-refresh"></i></button>
-                            <button id="clear" class="btn btn-sm btn-warning my-3 mb-3">Limpiar texto <i
-                                    class="fa fa-refresh"></i></button>
+                            <button id="analyze" class="btn btn-sm btn-success my-3 mb-3">Analizar Texto <i
+                                    class="fa fa-bolt" aria-hidden="true"></i>
+                            </button>
+                            <button id="clear" class="btn btn-sm btn-secondary my-3 mb-3"><i class="fa fa-trash"
+                                    aria-hidden="true"></i></button>
                         </div>
                     </div>
                 </div>
@@ -77,7 +81,6 @@
                             </div>
                             <canvas id="gaugeCanvas" width="200" height="100"
                                 style="width:200px; height:100px;"></canvas>
-
                         </div>
                     </div>
                     <div class="col-12">
@@ -93,9 +96,6 @@
                         </div>
                     </div>
                 </div>
-
-
-
             </div>
 
             <!-------------- Panel de configuraciones --------------------->
@@ -210,7 +210,7 @@
                             data-bs-parent="#configAccordion">
                             <div class="accordion-body">
                                 <p style="font-size: 11px;" id="label_uso_jira"></p>
-                                    
+
                                 <div class="row">
                                     <div class="col-5 offset-1">
                                         <label class="form-label-sm">Url Jira</label>
@@ -272,9 +272,6 @@
                             </div>
                         </div>
                     </div>
-
-      
-
                 </div>
             </div>
         </div>
@@ -283,8 +280,8 @@
         <hr>
         <div class="row" style="margin-top: 20px;">
             <div class="col-12">
-                <label><span class="badge bg-warning">Advertencia</span> Interpretar con precaución. Usa este resultado como indicio inicial; revisa el contexto, referencia y estilo antes de sacar conclusiones </label>
-
+                <label><span class="badge bg-warning">Advertencia</span> Interpretar con precaución. Usa este resultado
+                    como indicio inicial; revisa el contexto, referencia y estilo antes de sacar conclusiones </label>
             </div>
         </div>
         <div class="row" style="margin-top:10px;">
@@ -295,12 +292,11 @@
     </div>
 
     <footer class="text-center" style="margin-top:10px;">
-        <div class="text-center p-3" style="background-color: rgba(21, 35, 127, 1); color: aliceblue;" id="haka_link">
-
+        <div class="text-center p-1" style="background-color: rgba(67, 60, 130, 1); color: aliceblue;">
+            <p>Created By Felipe Farias / farias3felipe@gmail.com</p>
         </div>
     </footer>
-
-
+    <script src="content_script.js"></script>
     <script type="module" src="sidepanel.js"></script>
 </body>
 

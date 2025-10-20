@@ -22,13 +22,13 @@ const delete_ia_config = document.getElementById('delete-ia-config');
 const gemini_modelo = document.getElementById('gemini-model');
 const gemini_token = document.getElementById('gemini-token');
 
-const MAX = 1000;
+const MAX = 2000;
 setting_leng();
 
 // --- Main ---
 document.addEventListener('DOMContentLoaded', async () => {
     //seteo de lenguaje, si es el primer ingreso
-    await settingLenguaje()
+    await setting_initial_lenguaje();
 
     //seteo del lenguaje
     await setting_leng();
@@ -39,21 +39,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     initGauge('gaugeCanvas', 200, 100, { arc: 'down' });
 
     //llamadas de eventos
-    texto.addEventListener('keydown', updateCounter);
+    texto.addEventListener('keyup', updateCounter);
     clearBtn.addEventListener('click', clearAll);
-    analizeBtn.addEventListener('click', await analizeWithIA);
+    analizeBtn.addEventListener('click', analizeWithIA);
     iaselect.addEventListener('change', updateIACombo);
     save_ia_config.addEventListener('click', saveIaSettings);
     delete_ia_config.addEventListener('click', deletetoken);
 
-    // Listener: runtime.onMessage (mensaje inmediato desde background)
-    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-        if (!msg || !msg.type) return false;
-        if (msg.type === 'pendingAnalysisText' && typeof msg.text === 'string') {
-            applyPendingText(msg.text).catch(() => { });
-        }
-        return false;
-    });
+    analizeBtn.disabled = true;
+    clearBtn.disabled = true;
+    texto.value = '';
+
+    const { textfromhtml } = await chrome.storage.sync.get(['textfromhtml']);
+    if (textfromhtml && textfromhtml.trim().length > 1) {
+        texto.value = textfromhtml.trim();
+        updateCounter();
+        analizeBtn.disabled = false;
+        clearBtn.disabled = false;
+        chrome.storage.sync.set({textfromhtml: ""});
+    }
 
 });
 
@@ -68,10 +72,20 @@ function stripLeadingJsonFences(str) {
 }
 
 function updateCounter() {
+    console.log("Updating counter...");
     const len = texto.value.length;
+    console.log("len:", len);
     const remaining = MAX - len;
+    console.log("pendientes:", remaining);
     counter.innerText = remaining >= 0 ? remaining : 0;
-    analizeBtn.disabled = (len === 0) || (len > MAX); // deshabilita si vacío o excede
+
+    if ((len === 0) || (len > MAX)) {
+        analizeBtn.disabled = true;
+        clearBtn.disabled = true
+    } else {
+        analizeBtn.disabled = false;
+        clearBtn.disabled = false;
+    }
     counter.style.color = len > MAX ? 'crimson' : '';
 }
 
@@ -89,7 +103,7 @@ async function applyPendingText(text) {
     texto.value = text;
     updateCounter();
     // limpiar la clave para evitar reaparecer en la próxima apertura
-    await storageRemove('pendingAnalysisText');
+    //await storageRemove('pendingAnalysisText');
 }
 
 async function analizeWithIA() {
@@ -206,7 +220,7 @@ async function settingIA() {
     }
 }
 
-async function settingLenguaje() {
+async function setting_initial_lenguaje() {
     const { activate } = await chrome.storage.sync.get('activate');
 
     //si es primer ingreso, pedir idioma

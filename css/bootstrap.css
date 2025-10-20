@@ -3532,20 +3532,20 @@ fieldset:disabled .btn {
 }
 
 .btn-secondary {
-    --bs-btn-color: #fff;
-    --bs-btn-bg: #6c757d;
-    --bs-btn-border-color: #6c757d;
-    --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #5c636a;
-    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-color: hsl(0, 0%, 20%);
+    --bs-btn-bg: #EDEDED;
+    --bs-btn-border-color: #EDEDED;
+    --bs-btn-hover-color: hsl(0, 0%, 20%);
+    --bs-btn-hover-bg: #C9C9C9;
+    --bs-btn-hover-border-color: #C9C9C9;
     --bs-btn-focus-shadow-rgb: 130, 138, 145;
-    --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #565e64;
-    --bs-btn-active-border-color: #51585e;
+    --bs-btn-active-color: hsl(0, 0%, 20%);
+    --bs-btn-active-bg: #C9C9C9;
+    --bs-btn-active-border-color: #C9C9C9;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #fff;
-    --bs-btn-disabled-bg: #6c757d;
-    --bs-btn-disabled-border-color: #6c757d
+    --bs-btn-disabled-color: hsl(0, 0%, 20%);
+    --bs-btn-disabled-bg: #EDEDED;
+    --bs-btn-disabled-border-color: #EDEDED
 }
 
 .btn-success {
