@@ -56,6 +56,16 @@
     "RESULT_HUMAN":"Texto humanizado",
     "REEMPLAZAR":"Reemplazar original",
     "COPIAR":"Copiar",
-    "CERRAR":"Cerrar"
+    "CERRAR":"Cerrar",
+
+    "ANALIZANDO": "Analizando con IA, por favor espera.",
+    "CARGANDO":"Manténgase en Línea!",
+
+    "NO_API_GOOGLE": "No hay Google API key configurada. Abre Opciones y pega tu clave.",
+    "ERROR_GEMINI1":"Error consultando con Gemini. por favor reinténtalo, valida el modelo y token configurado.",
+    "NO_OPENAI":"No hay OpenAI API key configurada. Abre configuraciones y pega tu clave.",
+    "ERROR_OPENAI1":"Error consultando con OPENAI. por favor reinténtalo, valida el modelo utilizado y token configurado.",
+    "ERROR_MODELO_CHROME":"El modelo no está disponible en este contexto. Debes tener habilitada la Chrome IA (Basada en Gemini Nano)",
+    "ERROR_OPENAI_VALIDACION":"No ha sido posible conectar con OPENAI. Verifica el token y el modelo utilizado."
 
 }
