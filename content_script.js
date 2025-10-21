@@ -1,27 +1,16 @@
-
-  /*
-  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (!msg || !msg.type) return;
-
-    if (msg.type === 'getSelection') {
-      try {
-        const sel = (window.getSelection && window.getSelection().toString()) || '';
-        sendResponse({ text: sel });
-      } catch (e) {
-        sendResponse({ text: '' });
-      }
-      return true;
+var port = chrome.runtime.connect({ name: 'sidepanel_ready' });
+ port.onMessage.addListener((msg) => {
+    console.log("intentare....2222");
+    if (msg.type === 'envio_texto') {
+      console.log("analisis");
+        //processTextPayload(msg.payload);
     }
-
-    console.log("Mensaje recibido en sidepanel.js:", message);
-    if (msg.action === "textoFromWeb") {
-
-      const textoRecibido = message.value;
-        //texto.value = textoRecibido || '';
-       updateCounter();
+    else if (msg.type === 'envio_texto_pertinencia') {
+        console.log("Pertinencia");
+        //processTextPertinencePayload(msg.payload);
     }
-  });
-  */
+});
+
 
 
 

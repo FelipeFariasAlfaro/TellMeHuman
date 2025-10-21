@@ -8,7 +8,8 @@
     "sidePanel",
     "tabs",
     "activeTab",
-    "scripting"
+    "scripting",
+    "windows"
   ],
   "icons": {
     "16": "img/16x16.png",

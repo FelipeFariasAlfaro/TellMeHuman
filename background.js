@@ -8,42 +8,81 @@ function isAllowedUrl(url) {
   }
 }
 
-// On installed: crear context menu y (opcional) establecer opciones por defecto
 chrome.runtime.onInstalled.addListener(() => {
   try {
     chrome.contextMenus.create({
       id: "analyze-selection",
-      title: "Analizar con TellMeHuman",
+      title: "Analizar",
       contexts: ["selection"]
     });
-    chrome.sidePanel.setOptions?.({ path: "sidepanel.html", enabled: true }).catch(()=>{});
-    chrome.sidePanel.setPanelBehavior?.({ openPanelOnActionClick: true }).catch(()=>{});
+    chrome.contextMenus.create({
+      id: "pertinence-selection",
+      title: "Pertinencia",
+      contexts: ["selection"]
+    });
+    chrome.sidePanel.setOptions?.({ path: "sidepanel.html", enabled: true });
+    chrome.sidePanel.setPanelBehavior?.({ openPanelOnActionClick: true });
   } catch (e) {
     console.warn("onInstalled:", e);
   }
 });
 
-// Handler del menu contextual
+/*
+// Almacena una referencia al puerto de conexión para saber si el sidepanel está abierto.
+let sidepanelPort = null;
+
+// Escuchar la conexión del sidepanel
+// background.js (Dentro de chrome.runtime.onConnect.addListener)
+
+chrome.runtime.onConnect.addListener((port) => {
+  // 💡 REGLA: Solo procesar el puerto del Side Panel.
+  if (port.name === 'sidepanel_ready') {
+
+    // 1. Asignar el nuevo puerto. 
+    // Esto reemplaza CRÍTICAMENTE el puerto viejo si el panel se recargó.
+    sidepanelPort = port;
+    console.log("Sidepanel conectado y listo. Nuevo puerto asignado.");
+
+    port.onDisconnect.addListener((p) => {
+
+      if (sidepanelPort === p) {
+        sidepanelPort = null;
+        console.log("Sidepanel desconectado. Referencia limpiada.");
+      } else {
+        console.warn("Se desconectó un puerto viejo. Ignorando limpieza.");
+      }
+    });
+
+  }
+});
+*/
+/* background.js (Nueva función) */
+
+
+
+// Función del menú contextual
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId !== "analyze-selection") return;
 
   const selectionFromInfo = info.selectionText?.trim();
-  chrome.storage.sync.set({textfromhtml: selectionFromInfo});
 
-  try {
-    if (tab && tab.id && isAllowedUrl(tab.url)) {
-      await chrome.sidePanel.open({ tabId: tab.id }).catch(err => {
-        console.error("Error abriendo sidePanel (context menu):", err);
-      });
-      await chrome.sidePanel.setOptions({ tabId: tab.id, path: "sidepanel.html", enabled: true }).catch(()=>{});
-    } else {
-      console.warn("No se abre sidePanel: pestaña inválida o URL no permitida.");
-    }
-  } catch (e) {
-    console.error("contextMenus.onClicked (open) error:", e);
+  chrome.sidePanel.open({ tabId: tab.id }).catch(err => {
+    console.error("Error abriendo sidePanel:", err);
+  });
+
+  if (info.menuItemId === "analyze-selection") {
+    try {
+      chrome.storage.sync.set({ textfromhtml: selectionFromInfo }, async () => { });
+      chrome.runtime.sendMessage({ action: "envio_texto", value: selectionFromInfo });
+    } catch (e) { }
   }
-  
+  else if (info.menuItemId === "pertinence-selection") {
+      chrome.storage.sync.set({ textpertinencefromhtml: selectionFromInfo }, async () => { });
+      chrome.runtime.sendMessage({ action: "envio_texto_pertinencia", value: selectionFromInfo }).catch(e => {
+        if (e.message.includes('Receiving end does not exist')) {}
+      });
+  }
 });
+
 
 // Opcional: cuando el user hace click en el icono (action), abrimos el sidepanel inmediato
 chrome.action.onClicked.addListener((tab) => {
@@ -56,7 +95,7 @@ chrome.action.onClicked.addListener((tab) => {
     chrome.sidePanel.open({ tabId: tab.id }).catch(err => {
       console.error("Error abriendo sidePanel (action):", err);
     });
-    chrome.sidePanel.setOptions({ tabId: tab.id, path: "sidepanel.html", enabled: true }).catch(()=>{});
+    chrome.sidePanel.setOptions({ tabId: tab.id, path: "sidepanel.html", enabled: true }).catch(() => { });
   } catch (e) {
     console.error("action.onClicked error:", e);
   }

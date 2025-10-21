@@ -11,7 +11,7 @@
     <script src="js/jquey.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/swal.js"></script>
-    
+
     <style>
         .gauge-container {
             overflow: visible;
@@ -38,12 +38,16 @@
             </div>
             <ul class="nav nav-tabs" style="margin-top: 5px;">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#main" id="copilot"><img src="img/dialogo.png"
+                    <a class="nav-link active" data-bs-toggle="tab" href="#main" id="analisis">Analisis IA<img src="img/dialogo.png"
                             width="34px"></a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#analisis_perticencia" id="pertinencia">Pertinencia <img
+                            src="img/revision-positiva.png" width="30px"></a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#otra" id="configuraciones"><img
-                            src="img/engranaje.png" width="24px"></a>
+                            src="img/engranaje.png" width="28px"></a>
                 </li>
 
             </ul>
@@ -51,9 +55,11 @@
         <div class="tab-content">
             <div id="main" class="tab-pane fade show active container">
                 <div class="row mt-3">
-
+                    <div class="col-12">
+                        <label><img src="img/solicitud.png" width="24"> Esta sección te permite conocer que tan probable es que un texto haya sido escrito por una IA.</label>
+                    </div>
                     <div class="col-12 text-end">
-                        <span class="badge bg-secondary">Detector: Chrome IA</span>
+                        <span class="badge bg-secondary" id="label_iainuse1"></span>
                     </div>
 
                     <div class="col-12 mt-3">
@@ -89,6 +95,51 @@
                 </div>
 
                 <div class="row" id="robot-sleeping">
+                    <div class="col-12 text-center">
+                        <div class="text-center my-3">
+                            <img src="img/waiting.png" class="img-fluid" alt="My logo"
+                                style="max-width: 20%; margin-top: 5%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analisis_perticencia" class="tab-pane fade container">
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label><img src="img/solicitud.png" width="24"> Esta sección te permite conocer la pertinencia (inicial y aproximada) de un texto. En ningún caso representa una verdad absoluta.</label>
+                    </div>
+
+                    <div class="col-12 text-end">
+                        <span class="badge bg-secondary" id="label_iainuse2"></span>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <div class="mb-3">
+                            <textarea id="texto_pertinence" class="form-control" rows="6"
+                                placeholder="Escribe o pega el texto aquí, tambien puedes seleccionar un texto, presionar el click derecho del mouse y seleccionar -Analizar con TellMeHuman-..."
+                                aria-describedby="helpBlock"></textarea>
+                            <div class="form-text"><span id="counterP">2000</span>/2000</div>
+
+                            <button id="analyze_pertnence" class="btn btn-sm btn-success my-3 mb-3">Analizar Texto <i
+                                    class="fa fa-bolt" aria-hidden="true"></i>
+                            </button>
+                            <button id="clear_perticence" class="btn btn-sm btn-secondary my-3 mb-3"><i
+                                    class="fa fa-trash" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row" id="result-pertinence">
+                    <div class="col-12" id="dominio"></div>
+                    <div class="col-12" id="confidence"></div>
+                    <div class="col-12" id="summary"></div>
+                    <div class="col-12" id="issues"></div>
+                    <div class="col-12" id="check_suggestions"></div>
+                    <div class="col-12" id="claims_to_check"></div>
+                    <div class="col-12" id="notes"></div>
+                </div>
+                <div class="row" id="robot-sleeping2">
                     <div class="col-12 text-center">
                         <div class="text-center my-3">
                             <img src="img/waiting.png" class="img-fluid" alt="My logo"

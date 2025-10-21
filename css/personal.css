@@ -20,3 +20,7 @@ label {
   backdrop-filter: blur(6px);
   background-color: rgba(0,0,0,0.4) !important;
 }
+
+li{
+  font-size: 13px;
+}
