@@ -353,8 +353,6 @@ export async function analizeWithGemini(text) {
 }
 
 
-
-
 /* ------------ PERTINENCIA -------------- */
 
 const systemPromptPertinence = `Eres un modelo de verificación y clasificación de contenido. 

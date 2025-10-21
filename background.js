@@ -27,38 +27,6 @@ chrome.runtime.onInstalled.addListener(() => {
   }
 });
 
-/*
-// Almacena una referencia al puerto de conexión para saber si el sidepanel está abierto.
-let sidepanelPort = null;
-
-// Escuchar la conexión del sidepanel
-// background.js (Dentro de chrome.runtime.onConnect.addListener)
-
-chrome.runtime.onConnect.addListener((port) => {
-  // 💡 REGLA: Solo procesar el puerto del Side Panel.
-  if (port.name === 'sidepanel_ready') {
-
-    // 1. Asignar el nuevo puerto. 
-    // Esto reemplaza CRÍTICAMENTE el puerto viejo si el panel se recargó.
-    sidepanelPort = port;
-    console.log("Sidepanel conectado y listo. Nuevo puerto asignado.");
-
-    port.onDisconnect.addListener((p) => {
-
-      if (sidepanelPort === p) {
-        sidepanelPort = null;
-        console.log("Sidepanel desconectado. Referencia limpiada.");
-      } else {
-        console.warn("Se desconectó un puerto viejo. Ignorando limpieza.");
-      }
-    });
-
-  }
-});
-*/
-/* background.js (Nueva función) */
-
-
 
 // Función del menú contextual
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {

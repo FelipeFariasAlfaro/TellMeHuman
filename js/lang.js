@@ -9,7 +9,7 @@ export async function setting_leng() {
             const resp = await fetch(chrome.runtime.getURL('./leng/es.json')); 
             leng = await resp.json();
         }catch(e){
-            const resp = await fetch(chrome.runtime.getURL('./leng/es.json')); 
+            const resp = await fetch(chrome.runtime.getURL('./leng/en.json')); 
             leng = await resp.json();
         }    
     }else{

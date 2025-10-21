@@ -34,7 +34,6 @@ const label_iainuse2 = document.getElementById('label_iainuse2');
 var counterP = document.getElementById('counterP');
 var result_pertinence = document.getElementById('result-pertinence');
 const robot_sleeping2 = document.getElementById('robot-sleeping2');
-var port = chrome.runtime.connect({ name: 'sidepanel_ready' });
 
 const MAX = 2000;
 setting_leng();
@@ -52,7 +51,6 @@ const processTextPayload = (text) => {
 };
 
 const processTextPertinencePayload = (text) => {
-    console.log("vamos a procesar el texto en el campo");
     if (text && text.trim().length > 1) {
         texto_pertinence.value = text.trim();
         document.getElementById("pertinencia").click();
@@ -63,22 +61,6 @@ const processTextPertinencePayload = (text) => {
     }
 };
 
-/*
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    
-    console.log("Recibi el mensaje desde el background");
-    // El Side Panel se comporta como un script de UI/Página que escucha mensajes de runtime.
-    if (msg.type === 'envio_texto') {
-        console.log("Mensaje revibido en envio texto")
-        //processTextPayload(msg.payload);
-    }
-    else if (msg.type === 'envio_texto_pertinencia') {
-        console.log("Pertinencia recibida por mensaje de una sola vez.");
-        //processTextPertinencePayload(msg.payload);
-    }
-    
-    // No necesitas retornar true si no usas sendResponse
-});*/
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   
@@ -94,8 +76,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 // --- Main ---
 document.addEventListener('DOMContentLoaded', async () => {
-
-    console.log("Esta cargando el dom");
 
     //seteo de lenguaje, si es el primer ingreso
     await setting_initial_lenguaje();
@@ -118,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     pertnenceBtn.addEventListener('click', analizePertinenceWithIA);
     clearPerticencebtn.addEventListener('click', clearAllPertinence);
     texto_pertinence.addEventListener('keyup', updateCounterPertinence);
+    
     await initFront();
 
     const { textfromhtml } = await chrome.storage.sync.get(['textfromhtml']);
@@ -205,79 +186,6 @@ function clearAllPertinence() {
 
 }
 
-// Aplica texto recibido al textarea y actualiza UI
-async function applyPendingText(text) {
-    if (typeof text !== 'string') return;
-    texto.value = text;
-    updateCounter();
-    // limpiar la clave para evitar reaparecer en la próxima apertura
-    //await storageRemove('pendingAnalysisText');
-}
-
-async function analizeWithIA() {
-    const text = texto.value?.trim();
-    if (!text) {
-        result.innerText = "Ingresa o selecciona un texto primero.";
-        return;
-    }
-
-    result.innerText = '';
-    analizeBtn.disabled = true;
-
-    try {
-
-        var json;
-        var restpuJ;
-        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
-
-        if (ia_default === "chrome") {
-
-            var jsonTemp = await analizewithChrome(text);
-            json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-
-        } else if (ia_default === "gemini") {
-
-            var jsonTemp = await analizeWithGemini(text);
-            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
-            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-
-        } else if (ia_default === "openai") {
-            var jsonTemp = await analizewithOpenAI(text);
-            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
-            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-        }
-
-        json = stripLeadingJsonFences(json);
-        restpuJ = JSON.parse(json);
-
-        if (restpuJ && typeof restpuJ.probability !== 'undefined') {
-            const prob = restpuJ.probability;
-            const explanation = Array.isArray(restpuJ.explanation) ? restpuJ.explanation : [String(restpuJ.explanation || '')];
-            result.innerHTML = `<strong>Razones:</strong>\n- ${explanation.join('\n- ')}`;
-
-            animateGaugeTo(prob);
-            seccion_analisis.style.display = 'block';
-            robot_sleeping.style.display = 'none';
-
-            Swal.fire({
-                icon: 'success',
-                title: "Todo bien",
-                text: "Análisis completado correctamente. Revisa los resultados.",
-                confirmButtonText: 'OK'
-            });
-
-        } else {
-            result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
-        }
-
-    } catch (err) {
-        result.innerText = 'Error al analizar: ' + (err?.message || String(err));
-        console.error('analyze error', err);
-    } finally {
-        analizeBtn.disabled = false;
-    }
-}
-
 async function settingIA() {
     const { ia_default } = await chrome.storage.sync.get(['ia_default']);
     if (ia_default === "gemini") {
@@ -337,6 +245,7 @@ async function settingIA() {
 }
 
 async function setting_initial_lenguaje() {
+    
     const { activate } = await chrome.storage.sync.get('activate');
 
     //si es primer ingreso, pedir idioma
@@ -364,27 +273,6 @@ async function setting_initial_lenguaje() {
             }
         });
     }
-}
-
-// --- Helpers para usar chrome.storage con async/await (compatibilidad) ---
-export function storageGet(keys) {
-    return new Promise((resolve) => {
-        try {
-            chrome.storage.local.get(keys, (res) => resolve(res || {}));
-        } catch (e) {
-            resolve({});
-        }
-    });
-}
-
-function storageRemove(key) {
-    return new Promise((resolve) => {
-        try {
-            chrome.storage.local.remove(key, () => resolve());
-        } catch (e) {
-            resolve();
-        }
-    });
 }
 
 function updateIACombo() {
@@ -531,7 +419,68 @@ async function deletetoken() {
 
 }
 
-//Analisis
+async function analizeWithIA() {
+    const text = texto.value?.trim();
+    if (!text) {
+        result.innerText = "Ingresa o selecciona un texto primero.";
+        return;
+    }
+
+    result.innerText = '';
+    analizeBtn.disabled = true;
+
+    try {
+        var json;
+        var restpuJ;
+        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
+
+        if (ia_default === "chrome") {
+
+            var jsonTemp = await analizewithChrome(text);
+            json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+
+        } else if (ia_default === "gemini") {
+
+            var jsonTemp = await analizeWithGemini(text);
+            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
+            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+
+        } else if (ia_default === "openai") {
+            var jsonTemp = await analizewithOpenAI(text);
+            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
+            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+        }
+
+        json = stripLeadingJsonFences(json);
+        restpuJ = JSON.parse(json);
+
+        if (restpuJ && typeof restpuJ.probability !== 'undefined') {
+            const prob = restpuJ.probability;
+            const explanation = Array.isArray(restpuJ.explanation) ? restpuJ.explanation : [String(restpuJ.explanation || '')];
+            result.innerHTML = `<strong>Razones:</strong>\n- ${explanation.join('\n- ')}`;
+
+            animateGaugeTo(prob);
+            seccion_analisis.style.display = 'block';
+            robot_sleeping.style.display = 'none';
+
+            Swal.fire({
+                icon: 'success',
+                title: "Todo bien",
+                text: "Análisis completado correctamente. Revisa los resultados.",
+                confirmButtonText: 'OK'
+            });
+
+        } else {
+            result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
+        }
+
+    } catch (err) {
+        result.innerText = 'Error al analizar: ' + (err?.message || String(err));
+        console.error('analyze error', err);
+    } finally {
+        analizeBtn.disabled = false;
+    }
+}
 
 async function analizePertinenceWithIA() {
 
@@ -639,13 +588,4 @@ async function analizePertinenceWithIA() {
         result.innerText = 'Error al analizar: ' + (err?.message || String(err));
         console.error('analyze error', err);
     }
-}
-
-function escapeHTML(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
 }
