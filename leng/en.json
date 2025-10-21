@@ -42,7 +42,24 @@
     "ANALISIS_CORRECTO":"Analysis completed successfully. Review the results.",
     "ERROR_RESPUESTA_NOPARSEABLE":"The AI ​​did not provide a response in the expected format. Please try again.",
     "ERROR_RESPUESTA_MAL":"The AI ​​is unavailable or has not delivered a response in the expected format.",
-    "DOMINIO":"Domain"
+    "ERROR_EN_ANALISIS":"An error occurred while performing the analysis. Please try again. If the problem persists, you can try restarting your browser.",
+
+    
+    "DOMINIO":"Domain",
+    "CONFIDENCE":"Confidence",
+    "SUMMARY":"Summary",
+    "ISSUES":"Issues",
+    "CLAIMs":"Claim",
+    "TYPE":"Type",
+    "WHY":"Why",
+    "URGENCY":"Urgency",
+    "SUGGESTIONS":"Check Suggestions",
+    "CLAIMS_TOCHECK":"Claims to Check",
+    "NOTES": "Notes",
+    "RESULT_HUMAN":"Humanized text",
+    "REEMPLAZAR":"Replace original",
+    "COPIAR":"Copy",
+    "CERRAR":"Close"
 
 
 

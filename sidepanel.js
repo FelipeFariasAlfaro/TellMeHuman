@@ -590,27 +590,27 @@ async function analizePertinenceWithIA() {
 
         let confidence = restpuJ.confidence;
         if (confidence) {
-            document.getElementById('confidence').innerHTML = '<label><strong>Confidence:</strong> ' + confidence + '%</label>';
+            document.getElementById('confidence').innerHTML = `<label><strong>${leng.CONFIDENCE}:</strong>  ${confidence}%</label>`;
         }
 
         let summary = restpuJ.summary;
         if (summary) {
-            document.getElementById('summary').innerHTML = `<label><strong>Summary:</strong> ` + summary + `</label>`;
+            document.getElementById('summary').innerHTML = `<label><strong>${leng.SUMMARY}:</strong>${summary}</label>`;
         }
 
         let issues = restpuJ.issues;//array
         if (issues && issues.length > 0) {
 
-            let issuesHtml = '<label><strong>Issues:</strong> </label><ul>';
+            let issuesHtml = `<label><strong>${leng.ISSUES}:</strong> </label><ul>`;
             issues.forEach(issue => {
-                issuesHtml += `<li><strong>Claim:</strong> ${issue.claim}, <strong>Type:</strong> ${issue.type}, <strong>Why:</strong> ${issue.why}, <strong>Urgency:</strong> ${issue.urgency}</li>`;
+                issuesHtml += `<li><strong>${leng.CLAIMs}:</strong> ${issue.claim}, <strong>${leng.TYPE}:</strong> ${issue.type}, <strong>${leng.WHY}:</strong> ${issue.why}, <strong>${leng.URGENCY}:</strong> ${issue.urgency}</li>`;
             });
             document.getElementById('issues').innerHTML = issuesHtml + '</ul>';
 
         }
 
         let check_suggestions = restpuJ.check_suggestions;//array
-        let suggestionsHtml = '<label><strong>Check Suggestions:</strong></label><ul>';
+        let suggestionsHtml = `<label><strong>${leng.SUGGESTIONS}:</strong></label><ul>`;
         if (check_suggestions && check_suggestions.length > 0) {
             check_suggestions.forEach(suggestion => {
                 suggestionsHtml += `<li>${suggestion.action}: ${suggestion.priority}</li>`;
@@ -619,7 +619,7 @@ async function analizePertinenceWithIA() {
         }
 
         let claims_to_check = restpuJ.claims_to_check;//array
-        let claimsHtml = '<label><strong>Claims to Check:</strong> </label><ul>';
+        let claimsHtml = `<label><strong>${leng.CLAIMS_TOCHECK}:</strong> </label><ul>`;
         if (claims_to_check && claims_to_check.length > 0) {
             claims_to_check.forEach(claim => {
                 claimsHtml += `<li>${claim}</li>`;
@@ -630,76 +630,89 @@ async function analizePertinenceWithIA() {
 
         let notes = restpuJ.notes;
         if (notes && notes.length > 0) {
-            document.getElementById('notes').innerHTML = `<label><strong>Notes: </strong> ${notes}</label><ul>`;
+            document.getElementById('notes').innerHTML = `<label><strong>${leng.NOTES}: </strong> ${notes}</label><ul>`;
         }
 
         robot_sleeping2.style.display = 'none';
         Swal.fire({
             icon: 'success',
-            title: "Todo bien",
-            text: "Análisis 2 completado correctamente. Revisa los resultados.",
+            title: leng.EXITO_SWAL,
+            text: leng.ANALISIS_CORRECTO,
             confirmButtonText: 'OK'
         });
 
     } catch (err) {
-        result.innerText = 'Error al analizar: ' + (err?.message || String(err));
-        console.error('analyze error', err);
+        Swal.fire({
+            title: 'Error',
+            html: leng.ERROR_EN_ANALISIS,
+            icon: 'error',
+            confirmButtonText: leng.BTN_ENTIENDO
+        });
     }
 }
 
 async function humanizar() {
 
     let aHumanizar = texto.value;
+    try {
+        if (!aHumanizar || aHumanizar.length > 0) {
 
-    if (!aHumanizar || aHumanizar.length > 0) {
+            const { ia_default } = await chrome.storage.sync.get(['ia_default']);
+            let respuestaHumanizadaTemp;
+            let respuestaHumanizada;
 
-        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
-        let respuestaHumanizadaTemp;
-        let respuestaHumanizada;
-
-        if (ia_default === "chrome") {
-            respuestaHumanizadaTemp = await humanizeTextChrome(aHumanizar);
-            respuestaHumanizada = respuestaHumanizadaTemp.humanized_text;
-        } else if (ia_default === "openai") {
-            respuestaHumanizadaTemp = await humanizedWithOpenAI(aHumanizar);
-            const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
-            const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
-            respuestaHumanizada = restpuJ.humanized_text;
-        } else if (ia_default === "gemini") {
-            respuestaHumanizadaTemp = await humanizedWithGeminiAI(aHumanizar);
-            const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
-            const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
-            respuestaHumanizada = restpuJ.humanized_text;
-        }
-
-        Swal.fire({
-            title: 'Texto humanizado',
-            html: `<div style="max-height: 300px; overflow-y: auto; text-align: left;">${respuestaHumanizada}</div>`,
-            icon: 'info',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Reemplazar texto',
-            denyButtonText: 'Copiar',
-            cancelButtonText: 'Cerrar',
-            allowOutsideClick: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                texto.value = respuestaHumanizada;
-            } else if (result.isDenied) {
-                navigator.clipboard.writeText(respuestaHumanizada)
-                    .then(() => Swal.fire('¡Copiado!', '', 'success'))
-                    .catch(() => Swal.fire('Error al copiar', '', 'error'));
+            if (ia_default === "chrome") {
+                respuestaHumanizadaTemp = await humanizeTextChrome(aHumanizar);
+                respuestaHumanizada = respuestaHumanizadaTemp.humanized_text;
+            } else if (ia_default === "openai") {
+                respuestaHumanizadaTemp = await humanizedWithOpenAI(aHumanizar);
+                const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
+                const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
+                respuestaHumanizada = restpuJ.humanized_text;
+            } else if (ia_default === "gemini") {
+                respuestaHumanizadaTemp = await humanizedWithGeminiAI(aHumanizar);
+                const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
+                const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
+                respuestaHumanizada = restpuJ.humanized_text;
             }
-        });
 
-    } else {
+            Swal.fire({
+                title: leng.RESULT_HUMAN,
+                html: `<div style="max-height: 300px; overflow-y: auto; text-align: left;">${respuestaHumanizada}</div>`,
+                icon: 'info',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: leng.REEMPLAZAR,
+                denyButtonText: leng.COPIAR,
+                cancelButtonText: leng.CERRAR,
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    texto.value = respuestaHumanizada;
+                } else if (result.isDenied) {
+                    navigator.clipboard.writeText(respuestaHumanizada)
+                        .then(() => Swal.fire(leng.EXITO_SWAL, '', 'success'))
+                        .catch(() => Swal.fire('Error', '', 'error'));
+                }
+            });
+
+        } else {
+            Swal.fire({
+                title: '¡Error!',
+                text: leng.ERROR_NO_TEXT,
+                icon: 'error',
+                confirmButtonText: leng.BTN_ENTIENDO,
+                allowOutsideClick: false
+            });
+        }
+    } catch (err) {
         Swal.fire({
-            title: '¡Error!',
-            text: 'Debe existir un texto para humanizar!',
+            title: 'Error',
+            html: leng.ERROR_RESPUESTA_MAL,
             icon: 'error',
-            confirmButtonText: 'Aceptar',
-            allowOutsideClick: false
+            confirmButtonText: leng.BTN_ENTIENDO
         });
     }
+
 }
 

@@ -40,6 +40,22 @@
     "ANALISIS_CORRECTO":"Análisis completado correctamente. Revisa los resultados.",
     "ERROR_RESPUESTA_NOPARSEABLE":"La IA no ha entregado una respuesta en el formato esperado. Por favor, inténtalo nuevamente.",
     "ERROR_RESPUESTA_MAL":"La IA no está disponible o no ha entregado una respuesta en el formato esperado.",
+    "ERROR_EN_ANALISIS":"Error al realizar el análisis, por favor reinténtalo. Si el problema persiste puedes intentar reiniciando tu navegador.",
 
-    "DOMINIO":"Dominio"
+    "DOMINIO":"Dominio",
+    "CONFIDENCE":"Confianza",
+    "SUMMARY":"Resumen",
+    "ISSUES":"A Revisar",
+    "CLAIMs":"Afirmación",
+    "TYPE":"Tipo",
+    "WHY":"¿Porqué?",
+    "URGENCY":"Relevancia",
+    "SUGGESTIONS":"Sugerencias",
+    "CLAIMS_TOCHECK":"Para revisar",
+    "NOTES": "Notas",
+    "RESULT_HUMAN":"Texto humanizado",
+    "REEMPLAZAR":"Reemplazar original",
+    "COPIAR":"Copiar",
+    "CERRAR":"Cerrar"
+
 }
