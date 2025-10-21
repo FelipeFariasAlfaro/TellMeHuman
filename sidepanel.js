@@ -1,4 +1,3 @@
-
 import {
     analizewithOpenAI, analizewithChrome, testOpenAIConfig,
     analizeWithGemini, analizePertinencewithChrome, analizePertinencewithOpenAI,
@@ -47,7 +46,6 @@ const advertenciaheader = document.getElementById('advertenciaheader');
 const advertenciaheader2 = document.getElementById('advertencia2');
 const advertenciageneral = document.getElementById('advertenciageneral');
 const about = document.getElementById('about');
-
 const MAX = 2000;
 setting_leng();
 
@@ -74,33 +72,27 @@ const processTextPertinencePayload = (text) => {
     }
 };
 
-
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.action === 'envio_texto_pertinencia') {
         processTextPertinencePayload(message.value);
-        sendResponse(1); // Opcional: envía una respuesta de vuelta al Service Worker
+        sendResponse(1);
     } else if (message.action === 'envio_texto') {
         processTextPayload(message.value);
         sendResponse(1);
     }
-
 });
 
-// --- Main ---
 document.addEventListener('DOMContentLoaded', async () => {
 
     //seteo de lenguaje, si es el primer ingreso
     await setting_initial_lenguaje();
-
     //seteo del lenguaje
     await setting_leng();
-
     //setear la IA y muestra los campos que corresponden
     await settingIA()
-
+    //setea el espacio para el canvas
     initGauge('gaugeCanvas', 200, 100, { arc: 'down' });
-
     //llamadas de eventos
     texto.addEventListener('keyup', updateCounter);
     clearBtn.addEventListener('click', clearAll);
@@ -112,20 +104,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearPerticencebtn.addEventListener('click', clearAllPertinence);
     texto_pertinence.addEventListener('keyup', updateCounterPertinence);
     humanizer.addEventListener('click', humanizar);
-
+    //inicializa front
     await initFront();
-
+    //carga el texto seleccionado si corresponde
     const { textfromhtml } = await chrome.storage.sync.get(['textfromhtml']);
     if (textfromhtml && textfromhtml.trim().length > 1) {
         processTextPayload(textfromhtml);
     }
-
     const { textpertinencefromhtml } = await chrome.storage.sync.get(['textpertinencefromhtml']);
     if (textpertinencefromhtml && textpertinencefromhtml.trim().length > 1) {
         processTextPertinencePayload(textpertinencefromhtml);
     }
 });
-
 
 async function initFront() {
     analizeBtn.disabled = true;
@@ -162,7 +152,6 @@ async function initFront() {
     selmodegemini.innerHTML = leng.SELECCIONMODELO;
     mensajeconfig.innerHTML = leng.MENSAJEAJUSTES;
     about.innerHTML = leng.ABOUT;
-
 }
 
 function stripLeadingJsonFences(str) {
@@ -221,70 +210,76 @@ function clearAllPertinence() {
 }
 
 async function settingIA() {
-    const { ia_default } = await chrome.storage.sync.get(['ia_default']);
-    if (ia_default === "gemini") {
-        openai_data.style = 'display:none';
-        gemini_data.style = 'display:block';
-        iaselect.value = "Google Gemini";
+    try {
+        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
+        if (ia_default === "gemini") {
+            openai_data.style = 'display:none';
+            gemini_data.style = 'display:block';
+            iaselect.value = "Google Gemini";
 
-        const { gemini_key } = await chrome.storage.sync.get(['gemini_key']);
-        gemini_token.value = gemini_key || '';
+            const { gemini_key } = await chrome.storage.sync.get(['gemini_key']);
+            gemini_token.value = gemini_key || '';
 
-        const { gemini_model } = await chrome.storage.sync.get(['gemini_model']);
-        gemini_modelo.value = gemini_model || '';
+            const { gemini_model } = await chrome.storage.sync.get(['gemini_model']);
+            gemini_modelo.value = gemini_model || '';
 
-        if (gemini_token.value.length > 0) {
-            delete_ia_config.disabled = false;
-        } else {
+            if (gemini_token.value.length > 0) {
+                delete_ia_config.disabled = false;
+            } else {
+                delete_ia_config.disabled = true;
+            }
+            label_iainuse1.innerHTML = "Detector: Google Gemini";
+            label_iainuse2.innerHTML = "Detector: Google Gemini";
+
+        } else if (ia_default === "openai") {
+            openai_data.style = 'display:block';
+            gemini_data.style = 'display:none';
+            iaselect.value = "OpenAI";
+
+            const { openai_key } = await chrome.storage.sync.get(['openai_key']);
+            openai_token.value = openai_key || '';
+            const { openai_model } = await chrome.storage.sync.get(['openai_model']);
+            openai_modelo.value = openai_model || '';
+            if (openai_token.value.length > 0) {
+                delete_ia_config.disabled = false;
+            } else {
+                delete_ia_config.disabled = true;
+            }
+            label_iainuse1.innerHTML = "Detector: OpenAI";
+            label_iainuse2.innerHTML = "Detector: OpenAI";
+
+        } else if (ia_default === "chrome") {
+            openai_data.style = 'display:none';
+            gemini_data.style = 'display:none';
+            iaselect.value = "ChromeIA";
             delete_ia_config.disabled = true;
-        }
-        label_iainuse1.innerHTML = "Detector: Google Gemini";
-        label_iainuse2.innerHTML = "Detector: Google Gemini";
-
-    } else if (ia_default === "openai") {
-        openai_data.style = 'display:block';
-        gemini_data.style = 'display:none';
-        iaselect.value = "OpenAI";
-
-        const { openai_key } = await chrome.storage.sync.get(['openai_key']);
-        openai_token.value = openai_key || '';
-        const { openai_model } = await chrome.storage.sync.get(['openai_model']);
-        openai_modelo.value = openai_model || '';
-        if (openai_token.value.length > 0) {
-            delete_ia_config.disabled = false;
+            label_iainuse1.innerHTML = "Detector: Chrome AI";
+            label_iainuse2.innerHTML = "Detector: Chrome AI";
         } else {
+            await chrome.storage.sync.set({
+                ia_default: 'chrome'
+            });
+            openai_data.style = 'display:none';
+            gemini_data.style = 'display:none';
+            iaselect.value = "ChromeIA";
             delete_ia_config.disabled = true;
+            label_iainuse1.innerHTML = "Detector: Chrome AI";
+            label_iainuse2.innerHTML = "Detector: Chrome AI";
         }
-        label_iainuse1.innerHTML = "Detector: OpenAI";
-        label_iainuse2.innerHTML = "Detector: OpenAI";
-
-    } else if (ia_default === "chrome") {
-        openai_data.style = 'display:none';
-        gemini_data.style = 'display:none';
-        iaselect.value = "ChromeIA";
-        delete_ia_config.disabled = true;
-        label_iainuse1.innerHTML = "Detector: Chrome AI";
-        label_iainuse2.innerHTML = "Detector: Chrome AI";
-    } else {
-        await chrome.storage.sync.set({
-            ia_default: 'chrome'
+    } catch (err) {
+        Swal.fire({
+            title: 'Error',
+            html: leng.ERROR_SETTING_IA,
+            icon: 'error',
+            confirmButtonText: leng.BTN_ENTIENDO
         });
-        openai_data.style = 'display:none';
-        gemini_data.style = 'display:none';
-        iaselect.value = "ChromeIA";
-        delete_ia_config.disabled = true;
-        label_iainuse1.innerHTML = "Detector: Chrome AI";
-        label_iainuse2.innerHTML = "Detector: Chrome AI";
     }
 }
 
 async function setting_initial_lenguaje() {
-
     const { activate } = await chrome.storage.sync.get('activate');
-
     //si es primer ingreso, pedir idioma
     if (!activate || activate === false) {
-
         Swal.fire({
             title: 'Selecciona tu idioma / Select your language',
             showDenyButton: true,
@@ -337,7 +332,6 @@ function updateIACombo() {
 
 async function saveIaSettings() {
     const ia_selected = iaselect.value;
-
     try {
         if (ia_selected === "Google Gemini") {
 
@@ -352,20 +346,20 @@ async function saveIaSettings() {
                 Swal.fire({
                     icon: 'success',
                     title: leng.EXITO_SWAL,
-                    text: leng.MSG_IA_GUARDADO_OK,
+                    text: leng.MSG_IA_GEMINI_OK,
                     confirmButtonText: 'OK'
                 });
             } else {
                 Swal.fire({
+                    title: 'Error',
+                    html: leng.ERROR_NOTOKEN_GEMINI,
                     icon: 'error',
-                    title: "Error",
-                    text: "Debes ingresar tu token de Google Gemini.",
+                    confirmButtonText: leng.BTN_ENTIENDO
                 });
                 return;
             }
             label_iainuse1.innerHTML = "Detector: Google Gemini";
             label_iainuse2.innerHTML = "Detector: Google Gemini";
-
 
         } else if (ia_selected === "OpenAI") {
 
@@ -378,11 +372,18 @@ async function saveIaSettings() {
                 await chrome.storage.sync.set({ openai_model: model });
                 if (await testOpenAIConfig())
                     delete_ia_config.disabled = false;
+                Swal.fire({
+                    icon: 'success',
+                    title: leng.EXITO_SWAL,
+                    text: leng.MSG_IA_OPENAI_OK,
+                    confirmButtonText: 'OK'
+                });
             } else {
                 Swal.fire({
+                    title: 'Error',
+                    html: leng.ERROR_NOTOKEN_OPENAI,
                     icon: 'error',
-                    title: "Error",
-                    text: "Debes ingresar tu token de OpenAI.",
+                    confirmButtonText: leng.BTN_ENTIENDO
                 });
                 return;
             }
@@ -394,7 +395,7 @@ async function saveIaSettings() {
             Swal.fire({
                 icon: 'success',
                 title: leng.EXITO_SWAL,
-                text: leng.MSG_IA_GUARDADO_OK,
+                text: leng.MSG_IA_CHROME_OK,
                 confirmButtonText: 'OK'
             });
             delete_ia_config.disabled = false;
@@ -404,9 +405,10 @@ async function saveIaSettings() {
 
     } catch (e) {
         Swal.fire({
+            title: 'Error',
+            html: leng.ERROR_SAVE_IA,
             icon: 'error',
-            title: "Error",
-            text: "No se pudieron guardar las configuraciones de IA. Intenta nuevamente.",
+            confirmButtonText: leng.BTN_ENTIENDO
         });
         return;
     }
@@ -457,6 +459,12 @@ async function analizeWithIA() {
     const text = texto.value?.trim();
     if (!text) {
         result.innerText = "Ingresa o selecciona un texto primero.";
+        Swal.fire({
+            title: 'Upss',
+            html: leng.ERROR_NO_TEXT,
+            icon: 'info',
+            confirmButtonText: leng.BTN_ENTIENDO
+        });
         return;
     }
 
@@ -491,7 +499,7 @@ async function analizeWithIA() {
         if (restpuJ && typeof restpuJ.probability !== 'undefined') {
             const prob = restpuJ.probability;
             const explanation = Array.isArray(restpuJ.explanation) ? restpuJ.explanation : [String(restpuJ.explanation || '')];
-            result.innerHTML = `<strong>Razones:</strong>\n- ${explanation.join('\n- ')}`;
+            result.innerHTML = `<strong>${leng.RAZONS}:</strong>\n- ${explanation.join('\n- ')}`;
 
             animateGaugeTo(prob);
             seccion_analisis.style.display = 'block';
@@ -499,19 +507,19 @@ async function analizeWithIA() {
 
             Swal.fire({
                 icon: 'success',
-                title: "Todo bien",
-                text: "Análisis completado correctamente. Revisa los resultados.",
+                title: leng.EXITO_SWAL,
+                text: leng.ANALISIS_CORRECTO,
                 confirmButtonText: 'OK'
             });
             humanizer.disabled = false;
 
         } else {
-            result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
+            //result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
             Swal.fire({
                 title: '¡Error!',
-                text: 'la IA no ha entregado una respuesta en el formato esperado. Por favor, inténtalo nuevamente.',
+                text: leng.ERROR_RESPUESTA_NOPARSEABLE,
                 icon: 'error',
-                confirmButtonText: 'Aceptar',
+                confirmButtonText: leng.BTN_ENTIENDO,
                 allowOutsideClick: false
             });
         }
@@ -519,9 +527,9 @@ async function analizeWithIA() {
     } catch (err) {
         Swal.fire({
             title: '¡Error!',
-            text: 'La IA no está disponible o no ha entregado una respuesta en el formato esperado.',
+            text: leng.ERROR_RESPUESTA_MAL,
             icon: 'error',
-            confirmButtonText: 'Aceptar',
+            confirmButtonText: leng.BTN_ENTIENDO,
             allowOutsideClick: false
         });
 
@@ -542,7 +550,12 @@ async function analizePertinenceWithIA() {
 
     const text = texto_pertinence.value?.trim();
     if (!text) {
-        result.innerText = "Ingresa o selecciona un texto primero.";
+        Swal.fire({
+            title: 'Upss',
+            html: leng.ERROR_NO_TEXT,
+            icon: 'info',
+            confirmButtonText: leng.BTN_ENTIENDO
+        });
         return;
     }
 
@@ -553,11 +566,8 @@ async function analizePertinenceWithIA() {
         const { ia_default } = await chrome.storage.sync.get(['ia_default']);
 
         if (ia_default === "chrome") {
-
-            console.log("Iniciando análisis de pertinencia con ChromeIA...");
             let jsonTemp = await analizePertinencewithChrome(text);
             json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-            console.log("Respuesta ChromeIA:", json);
         }
         else if (ia_default === "openai") {
             let jsonTemp = await analizePertinencewithOpenAI(text);
@@ -572,11 +582,10 @@ async function analizePertinenceWithIA() {
 
         json = stripLeadingJsonFences(json);
         restpuJ = JSON.parse(json);
-        console.log("Respuesta parseada:", restpuJ);
 
         let dominio = restpuJ.domain;
         if (dominio) {
-            document.getElementById('dominio').innerHTML = `<label><strong>Domain:</strong> <span class="badge bg-primary">${dominio}</span></label>`;
+            document.getElementById('dominio').innerHTML = `<label><strong>${leng.DOMINIO}:</strong> <span class="badge bg-primary">${dominio}</span></label>`;
         }
 
         let confidence = restpuJ.confidence;

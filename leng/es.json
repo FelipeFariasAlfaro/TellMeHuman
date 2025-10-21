@@ -26,7 +26,20 @@
     "SELECCIONIA":"Selección de IA",
     "SELECCIONMODELO":"Selecciona el modelo",
     "MENSAJEAJUSTES":"Sobre TellMeHuman",
-    "ABOUT": "Los resultados entregados por este complemento son estimaciones basadas en modelos de inteligencia artificial (como Chrome AI, Gemini o OpenAI).\nLas probabilidades y análisis mostrados no constituyen una verificación definitiva de autoría ni una evaluación absoluta del contenido.\nTodos los valores deben interpretarse como indicativos, y pueden variar según el contexto, la calidad del texto y las limitaciones del modelo.\nSiempre se recomienda ejercer criterio humano antes de sacar conclusiones o tomar decisiones basadas en estos resultados."
+    "ABOUT": "Los resultados entregados por este complemento son estimaciones basadas en modelos de inteligencia artificial (como Chrome AI, Gemini o OpenAI).\nLas probabilidades y análisis mostrados no constituyen una verificación definitiva de autoría ni una evaluación absoluta del contenido.\nTodos los valores deben interpretarse como indicativos, y pueden variar según el contexto, la calidad del texto y las limitaciones del modelo.\nSiempre se recomienda ejercer criterio humano antes de sacar conclusiones o tomar decisiones basadas en estos resultados.",
 
-    
+    "ERROR_SETTING_IA":"Se ha encontrado un error al setear la IA, por favor cierra el complemento e inténtalo nuevamente.",
+    "ERROR_NOTOKEN_GEMINI":"Debes ingresar tu token de Google Gemini.",
+    "ERROR_NOTOKEN_OPENAI":"Debes ingresar tu token de OpenAI.",
+    "MSG_IA_GEMINI_OK":"Hemos almacenado tus preferencias de Gemini correctamente.",
+    "MSG_IA_OPENAI_OK":"Hemos almacenado tus preferencias de OpenAI correctamente.",
+    "MSG_IA_CHROME_OK":"Hemos almacenado tus preferencias, utilizaremos Chrome IA.",
+    "ERROR_SAVE_IA":"No se pudieron guardar las configuraciones de IA. Intenta nuevamente.",
+    "ERROR_NO_TEXT":"Para utilizar esta función debes ingresar un texto.",
+    "RAZONS":"Razones",
+    "ANALISIS_CORRECTO":"Análisis completado correctamente. Revisa los resultados.",
+    "ERROR_RESPUESTA_NOPARSEABLE":"La IA no ha entregado una respuesta en el formato esperado. Por favor, inténtalo nuevamente.",
+    "ERROR_RESPUESTA_MAL":"La IA no está disponible o no ha entregado una respuesta en el formato esperado.",
+
+    "DOMINIO":"Dominio"
 }

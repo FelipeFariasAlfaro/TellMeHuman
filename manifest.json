@@ -31,16 +31,5 @@
       },
       "description": "Alternar sidepanel"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "content_script.js"
-      ],
-      "run_at": "document_idle"
-    }
-  ]
+  }
 }

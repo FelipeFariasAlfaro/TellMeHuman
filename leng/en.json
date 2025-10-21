@@ -30,6 +30,20 @@
     "MENSAJEAJUSTES":"About TellMeHuman",
     "ABOUT": "The results delivered by this plugin are estimates based on artificial intelligence models (such as Chrome AI, Gemini, or OpenAI).\nThe probabilities and analysis shown do not constitute definitive verification of authorship or an absolute assessment of the content.\nAll values ​​should be interpreted as indicative and may vary depending on context, text quality, and model limitations.\nHuman judgment is always recommended before drawing conclusions or making decisions based on these results."
 
+    ,"ERROR_SETTING_IA":"An error occurred while setting the AI, please close the plugin and try again.",
+    "ERROR_NOTOKEN_GEMINI":"You must enter your Google Gemini token.",
+    "ERROR_NOTOKEN_OPENAI":"You must enter your OpenAI token.",
+    "MSG_IA_GEMINI_OK":"We have successfully stored your Gemini preferences.",
+    "MSG_IA_OPENAI_OK":"We have successfully stored your OpenAI preferences.",
+    "MSG_IA_CHROME_OK":"We have stored your preferences, we will use Chrome AI.",
+    "ERROR_SAVE_IA":"The AI ​​settings could not be saved. Please try again.",
+    "ERROR_NO_TEXT":"To use this function you must enter a text.",
+    "RAZONS":"Reasons",
+    "ANALISIS_CORRECTO":"Analysis completed successfully. Review the results.",
+    "ERROR_RESPUESTA_NOPARSEABLE":"The AI ​​did not provide a response in the expected format. Please try again.",
+    "ERROR_RESPUESTA_MAL":"The AI ​​is unavailable or has not delivered a response in the expected format.",
+    "DOMINIO":"Domain"
+
 
 
 
