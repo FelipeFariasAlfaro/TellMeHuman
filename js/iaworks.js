@@ -411,3 +411,93 @@ export async function analizePertinenceWithGemini(text) {
 
 }
 
+/* -------- Humanizar ------------ */
+
+
+const systemPromptHumanized = `Eres un asistente que reescribe textos para que suenen más humanos y naturales, preservando completamente el significado original.
+Sigue estas reglas:
+- Mantén siempre el significado original del texto.
+- Reescribe las oraciones para que fluyan de manera natural y conversacional, evitando construcciones que parezcan generadas por IA.
+- Conserva el estilo y tono del texto original, incluyendo nivel de formalidad, vocabulario y contexto.
+- Varía la longitud de las oraciones y utiliza contracciones u expresiones naturales cuando sea adecuado.
+- Proporciona solo el texto reescrito, sin explicaciones ni comentarios adicionales.`;
+
+function buildUserPromptHumanized(text) {
+  return `
+    AHORA: Humaniza el siguiente TEXTO y devuelve la respuesta como un JSON solo con la clave "humanized_text".
+    Texto a evaluar:
+    ---START---
+    ${text}
+    ---END---
+    RECUERDA: devuelve únicamente el JSON en una sola línea, sin comentarios ni fences.`;
+}
+
+export async function humanizeTextChrome(text) 
+{
+    try {
+        const aiGlobal = (typeof window !== 'undefined') ? window.ai || window.chrome?.ai : null;
+
+        if (aiGlobal && (aiGlobal.rewriter)) 
+        {
+            const api = aiGlobal.rewriter || aiGlobal.proofreader;
+            const reply = await api.rewrite?.({
+                text,
+                instructions: 'Reescribe este texto para que suene más humano y natural, conservando el significado. Usa oraciones de diferente longitud, contracciones ocasionales y un fraseo natural. Mantén un tono similar al original.',
+            
+            }) ?? await api.proofread?.({
+                text,
+                instructions: 'Reescribe para sonar más humano y natural mientras preserva el significado.'
+            });
+
+            const suggested =
+                reply?.suggestedText ||
+                reply?.rewrittenText ||
+                reply?.text ||
+                (typeof reply === 'string' ? reply : null);
+
+            if (suggested) {
+                console.log("Utililizado el primer intento con rewrite")
+                return { humanized_text: String(suggested) };
+            }
+        }
+    } catch (err) {
+        console.warn('Proofreader/rewriter no disponible o error:', err);
+    }
+
+    try {
+        const LM = (typeof window !== 'undefined') ? window.LanguageModel || window.ai?.languageModel : null;
+
+        if (LM && typeof LM.create === 'function') {
+            const session = await LM.create({
+                expectedInputs: [{ type: 'text', languages: ['es', 'en'] }],
+                expectedOutputs: [{ type: 'text', languages: ['es', 'en'] }],
+                initialPrompts: [{
+                    role: 'system',
+                    content: systemPromptHumanized
+                }]
+            });
+
+            const prompt = buildUserPromptHumanized(text);
+
+            const raw = await session.prompt(prompt);
+            const humanized = (typeof raw === 'string') ? raw.trim() : (raw?.text || '');
+
+            try { await session.destroy(); } catch (e) { /* ignore */ }
+
+            if (humanized) return { humanized_text: humanized };
+        }
+    } catch (err) {
+        console.warn('Prompt API fallback falló:', err);
+    }
+}
+
+export async function humanizedWithOpenAI(text) {
+  let respuesta = await callOpenAI(systemPromptHumanized, buildUserPromptHumanized(text))
+  return respuesta
+}
+
+export async function humanizedWithGeminiAI(text) {
+  let respuesta = await callGeminiAI(systemPromptHumanized, buildUserPromptHumanized(text))
+  return respuesta
+}
+

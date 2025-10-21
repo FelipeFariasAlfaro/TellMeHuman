@@ -3685,19 +3685,19 @@ fieldset:disabled .btn {
 }
 
 .btn-outline-success {
-    --bs-btn-color: #198754;
-    --bs-btn-border-color: #198754;
+    --bs-btn-color: #3C8275;
+    --bs-btn-border-color: #3C8275;
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #198754;
-    --bs-btn-hover-border-color: #198754;
+    --bs-btn-hover-bg: #3C8275;
+    --bs-btn-hover-border-color: #3C8275;
     --bs-btn-focus-shadow-rgb: 25, 135, 84;
     --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #198754;
-    --bs-btn-active-border-color: #198754;
+    --bs-btn-active-bg: #3C8275;
+    --bs-btn-active-border-color: #3C8275;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #198754;
+    --bs-btn-disabled-color: #3C8275;
     --bs-btn-disabled-bg: transparent;
-    --bs-btn-disabled-border-color: #198754;
+    --bs-btn-disabled-border-color: #3C8275;
     --bs-gradient: none
 }
 

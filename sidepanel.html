@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TestHunt</title>
+    <meta http-equiv="origin-trial" content="A2CZafWM4Lmkl9Mjasa+rhhJZDeK1oJ9zbzovo+Y1YZM+nyd9w87joKgQc1AflSSKYutMtpM4qH3+y8BakgKSgIAAACCeyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vZWZhbmFuZGdpbWJkZ2luamlqZGVjZmxibWZmbXBmaWgiLCJmZWF0dXJlIjoiQUlSZXdyaXRlckFQSSIsImV4cGlyeSI6MTc2OTQ3MjAwMCwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ==">
+    <title>Tell Me Human</title>
     <link rel="stylesheet" href="css/bootstrap.css" />
     <link rel="stylesheet" href="css/personal.css" />
     <link rel="stylesheet" href="css/css/font-awesome.min.css" />
@@ -38,12 +39,10 @@
             </div>
             <ul class="nav nav-tabs" style="margin-top: 5px;">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#main" id="analisis">Analisis IA<img src="img/dialogo.png"
-                            width="34px"></a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#main" id="analisis"></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#analisis_perticencia" id="pertinencia">Pertinencia <img
-                            src="img/revision-positiva.png" width="30px"></a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#analisis_perticencia" id="pertinencia"></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#otra" id="configuraciones"><img
@@ -56,7 +55,7 @@
             <div id="main" class="tab-pane fade show active container">
                 <div class="row mt-3">
                     <div class="col-12">
-                        <label><img src="img/solicitud.png" width="24"> Esta sección te permite conocer que tan probable es que un texto haya sido escrito por una IA.</label>
+                        <label id="advertenciaheader"></label>
                     </div>
                     <div class="col-12 text-end">
                         <span class="badge bg-secondary" id="label_iainuse1"></span>
@@ -64,14 +63,12 @@
 
                     <div class="col-12 mt-3">
                         <div class="mb-3">
-                            <textarea id="text" class="form-control" rows="6"
-                                placeholder="Escribe o pega el texto aquí, tambien puedes seleccionar un texto, presionar el click derecho del mouse y seleccionar -Analizar con TellMeHuman-..."
+                            <textarea id="text" class="form-control" rows="6" placeholder=""
                                 aria-describedby="helpBlock"></textarea>
                             <div class="form-text"><span id="counter">2000</span>/2000</div>
 
-                            <button id="analyze" class="btn btn-sm btn-success my-3 mb-3">Analizar Texto <i
-                                    class="fa fa-bolt" aria-hidden="true"></i>
-                            </button>
+                            <button id="analyze" class="btn btn-sm btn-success my-3 mb-3"></button>
+                            <button class="btn btn-sm btn-outline-success" id="humanizer"></button>
                             <button id="clear" class="btn btn-sm btn-secondary my-3 mb-3"><i class="fa fa-trash"
                                     aria-hidden="true"></i></button>
                         </div>
@@ -107,7 +104,7 @@
             <div id="analisis_perticencia" class="tab-pane fade container">
                 <div class="row mt-3">
                     <div class="col-12">
-                        <label><img src="img/solicitud.png" width="24"> Esta sección te permite conocer la pertinencia (inicial y aproximada) de un texto. En ningún caso representa una verdad absoluta.</label>
+                        <label id="advertencia2"></label>
                     </div>
 
                     <div class="col-12 text-end">
@@ -116,14 +113,10 @@
 
                     <div class="col-12 mt-3">
                         <div class="mb-3">
-                            <textarea id="texto_pertinence" class="form-control" rows="6"
-                                placeholder="Escribe o pega el texto aquí, tambien puedes seleccionar un texto, presionar el click derecho del mouse y seleccionar -Analizar con TellMeHuman-..."
+                            <textarea id="texto_pertinence" class="form-control" rows="6" placeholder=""
                                 aria-describedby="helpBlock"></textarea>
                             <div class="form-text"><span id="counterP">2000</span>/2000</div>
-
-                            <button id="analyze_pertnence" class="btn btn-sm btn-success my-3 mb-3">Analizar Texto <i
-                                    class="fa fa-bolt" aria-hidden="true"></i>
-                            </button>
+                            <button id="analyze_pertnence" class="btn btn-sm btn-success my-3 mb-3"></button>
                             <button id="clear_perticence" class="btn btn-sm btn-secondary my-3 mb-3"><i
                                     class="fa fa-trash" aria-hidden="true"></i></button>
                         </div>
@@ -161,8 +154,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingIA">
                             <button id="btn_ajustes_ia" class="accordion-button" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseIA" aria-expanded="true" aria-controls="collapseIA">Ajustes de
-                                IA</button>
+                                data-bs-target="#collapseIA" aria-expanded="true" aria-controls="collapseIA"></button>
                         </h2>
                         <div id="collapseIA" class="accordion-collapse collapse show" aria-labelledby="headingIA"
                             data-bs-parent="#configAccordion">
@@ -170,8 +162,7 @@
 
                                 <div class="row">
                                     <div class="col-8 offset-1 mb-1">
-                                        <label for="iaselect" class="form-label-sm" id="iaseleccion">Seleccion de
-                                            IA</label>
+                                        <label for="iaselect" class="form-label-sm" id="iaseleccion"></label>
                                         <select class="form-select form-select-sm" id="iaselect">
                                             <option value="ChromeIA">Chrome Built-in AI</option>
                                             <option value="OpenAI">OpenAI</option>
@@ -217,13 +208,13 @@
                                             <label for="gemini-model" class="form-label-sm"
                                                 id="sel_mode_gemini"></label>
                                             <select class="form-select form-select-sm" id="gemini-model">
-                                                <optgroup label="Gemini 2.0">
-                                                    <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                                                </optgroup>
                                                 <optgroup label="Gemini 2.5">
                                                     <option value="gemini-2.5-pro">gemini-2.5-pro</option>
                                                     <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                                                     <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+                                                </optgroup>
+                                                <optgroup label="Gemini 2.0">
+                                                    <option value="gemini-2.0-flash">gemini-2.0-flash</option>
                                                 </optgroup>
                                             </select>
                                         </div>
@@ -237,12 +228,12 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row" style="margin-top: 10px;">
                                     <div class="col-8 offset-1">
                                         <button id="save-ia-config" class="btn btn-sm btn-success me-1"
                                             title="Guardar Datos de IA"><i class="fa fa-floppy-o"></i></button>
-                                        <button id="delete-ia-config" disabled class="btn btn-sm btn-warning me-1"
-                                            title="Guardar Datos de IA"><i class="fa fa-floppy-o"></i></button>
+                                        <button id="delete-ia-config" disabled class="btn btn-sm btn-secondary me-1"
+                                            title="Guardar Datos de IA"><i class="fa fa-trash" aria-hidden="true"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -252,7 +243,7 @@
                     <!-- Ajustes de Jira -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingJira">
-                            <button id="jira_setting_menu" class="accordion-button collapsed" type="button"
+                            <button id="mensajeconfig" class="accordion-button collapsed" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#collapseJira" aria-expanded="false"
                                 aria-controls="collapseJira">Ajustes Generales
                             </button>
@@ -260,66 +251,7 @@
                         <div id="collapseJira" class="accordion-collapse collapse" aria-labelledby="headingJira"
                             data-bs-parent="#configAccordion">
                             <div class="accordion-body">
-                                <p style="font-size: 11px;" id="label_uso_jira"></p>
-
-                                <div class="row">
-                                    <div class="col-5 offset-1">
-                                        <label class="form-label-sm">Url Jira</label>
-                                        <div class="input-group-sm mb-2">
-                                            <input id="jira-base" type="text"
-                                                placeholder="https://tuempresa.atlassian.net" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <label class="form-label-sm">Mail (Jira)</label>
-                                        <div class="input-group-sm mb-2">
-                                            <input id="jira-email" type="text" placeholder="tu@empresa.com"
-                                                class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-10 offset-1">
-                                        <label class="form-label-sm">Token Jira</label>
-                                        <div class="input-group-sm mb-2">
-                                            <input id="jira-token" type="password" placeholder="API token Atlassian"
-                                                class="form-control">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-5 offset-1">
-                                        <label class="form-label-sm" id="label_issuetype"></label>
-                                        <div class="input-group input-group-sm mb-3">
-                                            <div class="input-group-text">
-                                                <input type="checkbox" id="chkissuetype">
-                                            </div>
-                                            <input type="text" id="inpissuetype" disabled value="Test"
-                                                class="form-control" placeholder="Debes especificar una tarea válida">
-                                            <button class="btn btn-warning" id="issue_q" title="¿Qué es esto?"><i
-                                                    class="fa fa-question" aria-hidden="true"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-5">
-                                        <label for="linked" class="form-label-sm" id="label_typelink"></label>
-                                        <div class="input-group input-group-sm">
-                                            <select class="form-select" id="linked">
-                                                <option value="Test">Test</option>
-                                                <option value="Relates">Relates</option>
-                                                <option value="Blocks">Blocks</option>
-                                                <option value="Causes">Causes</option>
-                                            </select>
-                                            <button class="btn btn-warning" id="linked_q" title="¿Qué es esto?"><i
-                                                    class="fa fa-question" aria-hidden="true"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-10 offset-1 mt-2">
-                                        <button class="btn btn-sm btn-success me-1" id="save-jira"
-                                            title="Guarda los datos de Jira"><i class="fa fa-floppy-o"></i></button>
-                                        <button class="btn btn-sm btn-danger" id="clear-jira"
-                                            title="Elimina todos los datos de XRAY"><i class="fa fa-trash"
-                                                aria-hidden="true"></i></button>
-                                    </div>
-                                </div>
+                                <label id="about"></label>
                             </div>
                         </div>
                     </div>
@@ -331,19 +263,18 @@
         <hr>
         <div class="row" style="margin-top: 20px;">
             <div class="col-12">
-                <label><span class="badge bg-warning">Advertencia</span> Interpretar con precaución. Usa este resultado
-                    como indicio inicial; revisa el contexto, referencia y estilo antes de sacar conclusiones </label>
+                <label id="advertenciageneral"></label>
             </div>
         </div>
         <div class="row" style="margin-top:10px;">
             <div class="col-12 text-center">
-                <button id="cofee" class="btn btn-outline-dark"><i class="fa fa-coffee" aria-hidden="true"></i></button>
+                <!--Activate to request donations <button id="cofee" class="btn btn-outline-dark"><i class="fa fa-coffee" aria-hidden="true"></i></button>-->
             </div>
         </div>
     </div>
 
     <footer class="text-center" style="margin-top:10px;">
-        <div class="text-center p-1" style="background-color: rgba(67, 60, 130, 1); color: aliceblue;">
+        <div class="text-center p-1" style="background-color: rgb(40, 36, 80); color: aliceblue;">
             <p>Created By Felipe Farias / farias3felipe@gmail.com</p>
         </div>
     </footer>

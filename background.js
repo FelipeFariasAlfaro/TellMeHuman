@@ -12,12 +12,12 @@ chrome.runtime.onInstalled.addListener(() => {
   try {
     chrome.contextMenus.create({
       id: "analyze-selection",
-      title: "Analizar",
+      title: "Analyze",
       contexts: ["selection"]
     });
     chrome.contextMenus.create({
       id: "pertinence-selection",
-      title: "Pertinencia",
+      title: "Pertinence",
       contexts: ["selection"]
     });
     chrome.sidePanel.setOptions?.({ path: "sidepanel.html", enabled: true });

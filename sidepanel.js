@@ -1,12 +1,16 @@
 
 import {
     analizewithOpenAI, analizewithChrome, testOpenAIConfig,
-    analizeWithGemini, analizePertinencewithChrome, analizePertinencewithOpenAI, analizePertinenceWithGemini
+    analizeWithGemini, analizePertinencewithChrome, analizePertinencewithOpenAI,
+    analizePertinenceWithGemini, humanizeTextChrome, humanizedWithOpenAI, humanizedWithGeminiAI
 } from './js/iaworks.js';
 import { initGauge, animateGaugeTo } from './js/gauge.js';
 import { leng, setting_leng } from "./js/lang.js";
 
-// Elementos
+//menus
+const analisis = document.getElementById('analisis');
+const pertinencia = document.getElementById('pertinencia');
+//analisis de texto
 var texto = document.getElementById('text');
 const analizeBtn = document.getElementById('analyze');
 const clearBtn = document.getElementById('clear');
@@ -18,6 +22,7 @@ const robot_sleeping = document.getElementById('robot-sleeping');
 const openai_data = document.getElementById('openai-data');
 const gemini_data = document.getElementById('gemini-data');
 const iaselect = document.getElementById('iaselect');
+const iaseleccion = document.getElementById('iaseleccion');
 const save_ia_config = document.getElementById('save-ia-config');
 const openai_token = document.getElementById('openai-token');
 const openai_modelo = document.getElementById('openai-model');
@@ -25,8 +30,11 @@ const delete_ia_config = document.getElementById('delete-ia-config');
 const gemini_modelo = document.getElementById('gemini-model');
 const gemini_token = document.getElementById('gemini-token');
 const label_iainuse1 = document.getElementById('label_iainuse1');
-
-//texto_pertinence
+const btnajustesia = document.getElementById('btn_ajustes_ia');
+const selmodeloia = document.getElementById('sel_modelo_ia');
+const selmodegemini = document.getElementById('sel_mode_gemini');
+const mensajeconfig = document.getElementById('mensajeconfig');
+//analisis pertinencia
 const pertnenceBtn = document.getElementById('analyze_pertnence');
 const texto_pertinence = document.getElementById('texto_pertinence');
 const clearPerticencebtn = document.getElementById('clear_perticence');
@@ -34,6 +42,11 @@ const label_iainuse2 = document.getElementById('label_iainuse2');
 var counterP = document.getElementById('counterP');
 var result_pertinence = document.getElementById('result-pertinence');
 const robot_sleeping2 = document.getElementById('robot-sleeping2');
+const humanizer = document.getElementById('humanizer');
+const advertenciaheader = document.getElementById('advertenciaheader');
+const advertenciaheader2 = document.getElementById('advertencia2');
+const advertenciageneral = document.getElementById('advertenciageneral');
+const about = document.getElementById('about');
 
 const MAX = 2000;
 setting_leng();
@@ -63,14 +76,14 @@ const processTextPertinencePayload = (text) => {
 
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  
-  if (message.action === 'envio_texto_pertinencia') {
-    processTextPertinencePayload(message.value);
-    sendResponse(1); // Opcional: envía una respuesta de vuelta al Service Worker
-  }else if(message.action === 'envio_texto'){
-    processTextPayload(message.value);
-    sendResponse(1);
-  }
+
+    if (message.action === 'envio_texto_pertinencia') {
+        processTextPertinencePayload(message.value);
+        sendResponse(1); // Opcional: envía una respuesta de vuelta al Service Worker
+    } else if (message.action === 'envio_texto') {
+        processTextPayload(message.value);
+        sendResponse(1);
+    }
 
 });
 
@@ -98,7 +111,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     pertnenceBtn.addEventListener('click', analizePertinenceWithIA);
     clearPerticencebtn.addEventListener('click', clearAllPertinence);
     texto_pertinence.addEventListener('keyup', updateCounterPertinence);
-    
+    humanizer.addEventListener('click', humanizar);
+
     await initFront();
 
     const { textfromhtml } = await chrome.storage.sync.get(['textfromhtml']);
@@ -117,12 +131,12 @@ async function initFront() {
     analizeBtn.disabled = true;
     clearBtn.disabled = true;
     texto.value = '';
-
     analyze_pertnence.disabled = true;
     clear_perticence.disabled = true;
     texto_pertinence.value = '';
     robot_sleeping2.display = 'block';
     result_pertinence.display = 'none';
+    humanizer.disabled = true;
 
     result_pertinence.innerHTML = `<div class="col-12" id="dominio"></div>
         <div class="col-12" id="confidence"></div>
@@ -131,6 +145,24 @@ async function initFront() {
         <div class="col-12" id="check_suggestions"></div>
         <div class="col-12" id="claims_to_check"></div>
         <div class="col-12" id="notes"></div>`;
+
+    analisis.innerHTML = leng.DETECTOR_IA;
+    pertinencia.innerHTML = leng.PERTINENCIA_IA;
+    advertenciaheader.innerHTML = leng.ADVERTENCIA1;
+    texto.placeholder = leng.PLACEHOLDERANALISIS;
+    analizeBtn.innerHTML = leng.ANALIZARTEXT;
+    humanizer.innerHTML = leng.HUMANIZAR;
+    advertenciaheader2.innerHTML = leng.ADVERTENCIA2;
+    pertnenceBtn.innerHTML = leng.REVISARPERTINENCIA;
+    texto_pertinence.placeholder = leng.PLACEHOLDERPERTINENCE;
+    advertenciageneral.innerHTML = leng.ADVERTENCIAGENERAL;
+    btnajustesia.innerHTML = leng.AJUSTESIA;
+    iaseleccion.innerHTML = leng.SELECCIONIA;
+    selmodeloia.innerHTML = leng.SELECCIONMODELO;
+    selmodegemini.innerHTML = leng.SELECCIONMODELO;
+    mensajeconfig.innerHTML = leng.MENSAJEAJUSTES;
+    about.innerHTML = leng.ABOUT;
+
 }
 
 function stripLeadingJsonFences(str) {
@@ -148,7 +180,8 @@ function updateCounter() {
 
     if ((len === 0) || (len > MAX)) {
         analizeBtn.disabled = true;
-        clearBtn.disabled = true
+        clearBtn.disabled = true;
+        humanizer.disabled = true;
     } else {
         analizeBtn.disabled = false;
         clearBtn.disabled = false;
@@ -175,6 +208,7 @@ function clearAll() {
     texto.value = '';
     result.innerText = '';
     updateCounter();
+    humanizer.disabled = 'true'
     seccion_analisis.style.display = 'none';
     robot_sleeping.style.display = 'block';
 }
@@ -183,7 +217,7 @@ function clearAllPertinence() {
     texto_pertinence.value = '';
     result_pertinence.innerHTML = '';
     robot_sleeping2.style.display = 'block'
-
+    updateCounterPertinence();
 }
 
 async function settingIA() {
@@ -245,7 +279,7 @@ async function settingIA() {
 }
 
 async function setting_initial_lenguaje() {
-    
+
     const { activate } = await chrome.storage.sync.get('activate');
 
     //si es primer ingreso, pedir idioma
@@ -469,14 +503,28 @@ async function analizeWithIA() {
                 text: "Análisis completado correctamente. Revisa los resultados.",
                 confirmButtonText: 'OK'
             });
+            humanizer.disabled = false;
 
         } else {
             result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
+            Swal.fire({
+                title: '¡Error!',
+                text: 'la IA no ha entregado una respuesta en el formato esperado. Por favor, inténtalo nuevamente.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                allowOutsideClick: false
+            });
         }
 
     } catch (err) {
-        result.innerText = 'Error al analizar: ' + (err?.message || String(err));
-        console.error('analyze error', err);
+        Swal.fire({
+            title: '¡Error!',
+            text: 'La IA no está disponible o no ha entregado una respuesta en el formato esperado.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false
+        });
+
     } finally {
         analizeBtn.disabled = false;
     }
@@ -589,3 +637,60 @@ async function analizePertinenceWithIA() {
         console.error('analyze error', err);
     }
 }
+
+async function humanizar() {
+
+    let aHumanizar = texto.value;
+
+    if (!aHumanizar || aHumanizar.length > 0) {
+
+        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
+        let respuestaHumanizadaTemp;
+        let respuestaHumanizada;
+
+        if (ia_default === "chrome") {
+            respuestaHumanizadaTemp = await humanizeTextChrome(aHumanizar);
+            respuestaHumanizada = respuestaHumanizadaTemp.humanized_text;
+        } else if (ia_default === "openai") {
+            respuestaHumanizadaTemp = await humanizedWithOpenAI(aHumanizar);
+            const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
+            const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
+            respuestaHumanizada = restpuJ.humanized_text;
+        } else if (ia_default === "gemini") {
+            respuestaHumanizadaTemp = await humanizedWithGeminiAI(aHumanizar);
+            const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
+            const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
+            respuestaHumanizada = restpuJ.humanized_text;
+        }
+
+        Swal.fire({
+            title: 'Texto humanizado',
+            html: `<div style="max-height: 300px; overflow-y: auto; text-align: left;">${respuestaHumanizada}</div>`,
+            icon: 'info',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Reemplazar texto',
+            denyButtonText: 'Copiar',
+            cancelButtonText: 'Cerrar',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                texto.value = respuestaHumanizada;
+            } else if (result.isDenied) {
+                navigator.clipboard.writeText(respuestaHumanizada)
+                    .then(() => Swal.fire('¡Copiado!', '', 'success'))
+                    .catch(() => Swal.fire('Error al copiar', '', 'error'));
+            }
+        });
+
+    } else {
+        Swal.fire({
+            title: '¡Error!',
+            text: 'Debe existir un texto para humanizar!',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false
+        });
+    }
+}
+

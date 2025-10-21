@@ -22,7 +22,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Detector IA"
+    "default_title": "AI Detector"
   },
   "commands": {
     "toggle-sidepanel": {
@@ -33,10 +33,14 @@
     }
   },
   "content_scripts": [
-  {
-    "matches": ["<all_urls>"],
-    "js": ["content_script.js"],
-    "run_at": "document_idle"
-  }
-]
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content_script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
 }
