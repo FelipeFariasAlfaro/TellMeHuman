@@ -10,10 +10,8 @@
     "BTN_CANCELAR":"Cancel",
     "DESEAS_CONTINUAR":"Do you wish to continue?",
     "BTN_CONFIRMAR":"Yes, proceed",
-
     "ELIMINAR_TOKEN":"This will delete the stored AI token. Are you sure you want to proceed?",
     "TOKEN_ELIMINADO":"You have successfully deleted the token.",
-
     "DETECTOR_IA": "AI Detector <img src='img/dialogo.png' width='34px'>",
     "PERTINENCIA_IA":"Pertinence <img src='img/revision-positiva.png' width='30px'>",
     "ADVERTENCIA1":"<img src='img/solicitud.png' width='24'> This section lets you know how likely it is that a text was written by an AI.",
@@ -43,7 +41,6 @@
     "ERROR_RESPUESTA_NOPARSEABLE":"The AI ​​did not provide a response in the expected format. Please try again.",
     "ERROR_RESPUESTA_MAL":"The AI ​​is unavailable or has not delivered a response in the expected format.",
     "ERROR_EN_ANALISIS":"An error occurred while performing the analysis. Please try again. If the problem persists, you can try restarting your browser.",
-
     
     "DOMINIO":"Domain",
     "CONFIDENCE":"Confidence",
@@ -69,17 +66,9 @@
     "NO_OPENAI":"There is no OpenAI API key configured. Open Settings and paste your key.",
     "ERROR_OPENAI1":"Error consulting with OPENAI. Please try again, validate the model used and configured token.",
     "ERROR_MODELO_CHROME":"The model is not available in this context. You must have Chrome AI (Based on Gemini Nano) enabled.",
-    "ERROR_OPENAI_VALIDACION":"It was not possible to connect to OPENAI. Please check the token and model used."
+    "ERROR_OPENAI_VALIDACION":"It was not possible to connect to OPENAI. Please check the token and model used.",
+    "PROBABILIDAD": "AI Probability",
+    "MSG_CAMBIOSIA":"When changing AI, Model or Token, you must save the changes.",
 
-
-
-
-
-
-
-
-
-
-
-
+    "ERROR_HTTP":"Error connecting to the AI ​​service (It may be temporarily unavailable). If the problem persists, try changing the Model."
 }

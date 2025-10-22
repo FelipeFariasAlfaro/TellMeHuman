@@ -17,6 +17,7 @@ const result = document.getElementById('result');
 var counter = document.getElementById('counter');
 const seccion_analisis = document.getElementById('result-analisys');
 const robot_sleeping = document.getElementById('robot-sleeping');
+var probabilidad = document.getElementById('probabilidad');
 //IA settings
 const openai_data = document.getElementById('openai-data');
 const gemini_data = document.getElementById('gemini-data');
@@ -46,6 +47,8 @@ const advertenciaheader = document.getElementById('advertenciaheader');
 const advertenciaheader2 = document.getElementById('advertencia2');
 const advertenciageneral = document.getElementById('advertenciageneral');
 const about = document.getElementById('about');
+const msg_ia = document.getElementById('msg_ia');
+
 const MAX = 2000;
 setting_leng();
 
@@ -152,6 +155,8 @@ async function initFront() {
     selmodegemini.innerHTML = leng.SELECCIONMODELO;
     mensajeconfig.innerHTML = leng.MENSAJEAJUSTES;
     about.innerHTML = leng.ABOUT;
+    probabilidad.innerHTML = leng.PROBABILIDAD;
+    msg_ia.innerHTML = leng.MSG_CAMBIOSIA;
 }
 
 function stripLeadingJsonFences(str) {
@@ -267,6 +272,7 @@ async function settingIA() {
             label_iainuse2.innerHTML = "Detector: Chrome AI";
         }
     } catch (err) {
+        Swal.close();
         Swal.fire({
             title: 'Error',
             html: leng.ERROR_SETTING_IA,
@@ -280,6 +286,7 @@ async function setting_initial_lenguaje() {
     const { activate } = await chrome.storage.sync.get('activate');
     //si es primer ingreso, pedir idioma
     if (!activate || activate === false) {
+        Swal.close();
         Swal.fire({
             title: 'Selecciona tu idioma / Select your language',
             showDenyButton: true,
@@ -304,11 +311,21 @@ async function setting_initial_lenguaje() {
     }
 }
 
-function updateIACombo() {
+async function updateIACombo() {
     const ia_selected = iaselect.value;
     if (ia_selected === "Google Gemini") {
+        const { gemini_key } = await chrome.storage.sync.get(['gemini_key']);
+        const { gemini_model } = await chrome.storage.sync.get(['gemini_model']);
         openai_data.style = 'display:none';
         gemini_data.style = 'display:block';
+
+        if (gemini_model) {
+            gemini_modelo.value = gemini_model;
+        }
+        if (gemini_key) {
+            gemini_token.value = gemini_key;
+        }
+
         if (gemini_token.value.length > 0) {
             delete_ia_config.disabled = false;
         } else {
@@ -316,8 +333,16 @@ function updateIACombo() {
         }
 
     } else if (ia_selected === "OpenAI") {
+
+        const { openai_key } = await chrome.storage.sync.get(['openai_key']);
+        const { openai_model } = await chrome.storage.sync.get(['openai_model']);
+
         openai_data.style = 'display:block';
         gemini_data.style = 'display:none';
+
+        if (openai_key) { openai_token.value = openai_key; }
+        if (openai_model) { openai_modelo.value = openai_model }
+
         if (openai_token.value.length > 0) {
             delete_ia_config.disabled = false;
         } else {
@@ -343,6 +368,7 @@ async function saveIaSettings() {
                 await chrome.storage.sync.set({ ia_default: 'gemini' });
                 await chrome.storage.sync.set({ gemini_model: model });
                 delete_ia_config.disabled = false;
+                Swal.close();
                 Swal.fire({
                     icon: 'success',
                     title: leng.EXITO_SWAL,
@@ -350,6 +376,7 @@ async function saveIaSettings() {
                     confirmButtonText: 'OK'
                 });
             } else {
+                Swal.close();
                 Swal.fire({
                     title: 'Error',
                     html: leng.ERROR_NOTOKEN_GEMINI,
@@ -372,6 +399,7 @@ async function saveIaSettings() {
                 await chrome.storage.sync.set({ openai_model: model });
                 if (await testOpenAIConfig())
                     delete_ia_config.disabled = false;
+                Swal.close();
                 Swal.fire({
                     icon: 'success',
                     title: leng.EXITO_SWAL,
@@ -379,6 +407,7 @@ async function saveIaSettings() {
                     confirmButtonText: 'OK'
                 });
             } else {
+                Swal.close();
                 Swal.fire({
                     title: 'Error',
                     html: leng.ERROR_NOTOKEN_OPENAI,
@@ -392,18 +421,20 @@ async function saveIaSettings() {
 
         } else if (ia_selected === "ChromeIA") {
             await chrome.storage.sync.set({ ia_default: 'chrome' });
+            Swal.close();
             Swal.fire({
                 icon: 'success',
                 title: leng.EXITO_SWAL,
                 text: leng.MSG_IA_CHROME_OK,
                 confirmButtonText: 'OK'
             });
-            delete_ia_config.disabled = false;
+            delete_ia_config.disabled = true;
             label_iainuse1.innerHTML = "Detector: Chrome AI";
             label_iainuse2.innerHTML = "Detector: Chrome AI";
         }
 
     } catch (e) {
+        Swal.close();
         Swal.fire({
             title: 'Error',
             html: leng.ERROR_SAVE_IA,
@@ -416,7 +447,7 @@ async function saveIaSettings() {
 }
 
 async function deletetoken() {
-
+    Swal.close();
     Swal.fire({
         title: leng.DESEAS_CONTINUAR,
         text: leng.ELIMINAR_TOKEN,
@@ -442,6 +473,7 @@ async function deletetoken() {
                 openai_token.value = '';
                 await chrome.storage.sync.set({ openai_key: '' });
                 delete_ia_config.disabled = true;
+                Swal.close();
                 Swal.fire({
                     icon: 'success',
                     title: leng.EXITO_SWAL,
@@ -459,6 +491,7 @@ async function analizeWithIA() {
     const text = texto.value?.trim();
     if (!text) {
         result.innerText = "Ingresa o selecciona un texto primero.";
+        Swal.close();
         Swal.fire({
             title: 'Upss',
             html: leng.ERROR_NO_TEXT,
@@ -469,73 +502,72 @@ async function analizeWithIA() {
     }
 
     result.innerText = '';
-    analizeBtn.disabled = true;
+
+    var json;
+    var restpuJ;
+    const { ia_default } = await chrome.storage.sync.get(['ia_default']);
+
+    if (ia_default === "chrome") {
+        var jsonTemp = await analizewithChrome(text);
+        if (jsonTemp === false) { return }
+        json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+        json = json.replace('"}', '"]}');
+
+    } else if (ia_default === "gemini") {
+
+        var jsonTemp = await analizeWithGemini(text);
+        if (jsonTemp === false) { return }
+        const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
+        json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+
+    } else if (ia_default === "openai") {
+        var jsonTemp = await analizewithOpenAI(text);
+        if (jsonTemp === false) { return }
+        const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
+        json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+    }
 
     try {
-        var json;
-        var restpuJ;
-        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
-
-        if (ia_default === "chrome") {
-
-            var jsonTemp = await analizewithChrome(text);
-            json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-
-        } else if (ia_default === "gemini") {
-
-            var jsonTemp = await analizeWithGemini(text);
-            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
-            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-
-        } else if (ia_default === "openai") {
-            var jsonTemp = await analizewithOpenAI(text);
-            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
-            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-        }
-
         json = stripLeadingJsonFences(json);
         restpuJ = JSON.parse(json);
-
-        if (restpuJ && typeof restpuJ.probability !== 'undefined') {
-            const prob = restpuJ.probability;
-            const explanation = Array.isArray(restpuJ.explanation) ? restpuJ.explanation : [String(restpuJ.explanation || '')];
-            result.innerHTML = `<strong>${leng.RAZONS}:</strong>\n- ${explanation.join('\n- ')}`;
-
-            animateGaugeTo(prob);
-            seccion_analisis.style.display = 'block';
-            robot_sleeping.style.display = 'none';
-
-            Swal.fire({
-                icon: 'success',
-                title: leng.EXITO_SWAL,
-                text: leng.ANALISIS_CORRECTO,
-                confirmButtonText: 'OK'
-            });
-            humanizer.disabled = false;
-
-        } else {
-            //result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
-            Swal.fire({
-                title: '¡Error!',
-                text: leng.ERROR_RESPUESTA_NOPARSEABLE,
-                icon: 'error',
-                confirmButtonText: leng.BTN_ENTIENDO,
-                allowOutsideClick: false
-            });
-        }
-
-    } catch (err) {
+    } catch (e) {
+        Swal.close();
         Swal.fire({
             title: '¡Error!',
-            text: leng.ERROR_RESPUESTA_MAL,
+            text: leng.ERROR_RESPUESTA_NOPARSEABLE,
             icon: 'error',
             confirmButtonText: leng.BTN_ENTIENDO,
-            allowOutsideClick: false
         });
-
-    } finally {
-        analizeBtn.disabled = false;
     }
+
+    if (restpuJ && typeof restpuJ.probability !== 'undefined') {
+        const prob = restpuJ.probability;
+        const explanation = Array.isArray(restpuJ.explanation) ? restpuJ.explanation : [String(restpuJ.explanation || '')];
+        result.innerHTML = `<strong>${leng.RAZONS}:</strong>\n- ${explanation.join('\n- ')}`;
+
+        animateGaugeTo(prob);
+        seccion_analisis.style.display = 'block';
+        robot_sleeping.style.display = 'none';
+        Swal.close();
+        Swal.fire({
+            icon: 'success',
+            title: leng.EXITO_SWAL,
+            text: leng.ANALISIS_CORRECTO,
+            confirmButtonText: 'OK'
+        });
+        humanizer.disabled = false;
+
+    } else {
+        //result.innerText = "Respuesta del modelo (no JSON parseable):\n\n" + reply;
+        Swal.close();
+        Swal.fire({
+            title: '¡Error!',
+            text: leng.ERROR_RESPUESTA_NOPARSEABLE,
+            icon: 'error',
+            confirmButtonText: leng.BTN_ENTIENDO,
+        });
+    }
+
 }
 
 async function analizePertinenceWithIA() {
@@ -550,6 +582,7 @@ async function analizePertinenceWithIA() {
 
     const text = texto_pertinence.value?.trim();
     if (!text) {
+        Swal.close();
         Swal.fire({
             title: 'Upss',
             html: leng.ERROR_NO_TEXT,
@@ -559,29 +592,40 @@ async function analizePertinenceWithIA() {
         return;
     }
 
+
+    var json;
+    var restpuJ;
+    const { ia_default } = await chrome.storage.sync.get(['ia_default']);
+
+    if (ia_default === "chrome") {
+        let jsonTemp = await analizePertinencewithChrome(text);
+        json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+    }
+    else if (ia_default === "openai") {
+        let jsonTemp = await analizePertinencewithOpenAI(text);
+        const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
+        json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+    }
+    else if (ia_default === "gemini") {
+        let jsonTemp = await analizePertinenceWithGemini(text);
+        const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
+        json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+    }
+
     try {
-
-        var json;
-        var restpuJ;
-        const { ia_default } = await chrome.storage.sync.get(['ia_default']);
-
-        if (ia_default === "chrome") {
-            let jsonTemp = await analizePertinencewithChrome(text);
-            json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-        }
-        else if (ia_default === "openai") {
-            let jsonTemp = await analizePertinencewithOpenAI(text);
-            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
-            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-        }
-        else if (ia_default === "gemini") {
-            let jsonTemp = await analizePertinenceWithGemini(text);
-            const reply = jsonTemp.choices?.[0]?.message?.content || jsonTemp.choices?.[0]?.text || '';
-            json = String(reply).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-        }
-
         json = stripLeadingJsonFences(json);
         restpuJ = JSON.parse(json);
+    } catch (e) {
+        Swal.close();
+        Swal.fire({
+            title: '¡Error!',
+            text: leng.ERROR_RESPUESTA_NOPARSEABLE,
+            icon: 'error',
+            confirmButtonText: leng.BTN_ENTIENDO,
+        });
+    }
+
+    try {
 
         let dominio = restpuJ.domain;
         if (dominio) {
@@ -634,6 +678,7 @@ async function analizePertinenceWithIA() {
         }
 
         robot_sleeping2.style.display = 'none';
+        Swal.close();
         Swal.fire({
             icon: 'success',
             title: leng.EXITO_SWAL,
@@ -642,6 +687,7 @@ async function analizePertinenceWithIA() {
         });
 
     } catch (err) {
+        Swal.close();
         Swal.fire({
             title: 'Error',
             html: leng.ERROR_EN_ANALISIS,
@@ -653,6 +699,16 @@ async function analizePertinenceWithIA() {
 
 async function humanizar() {
 
+    Swal.close();
+    Swal.fire({
+        icon: 'info',
+        title: leng.CARGANDO,
+        text: leng.ANALIZANDO,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+    });
+
     let aHumanizar = texto.value;
     try {
         if (!aHumanizar || aHumanizar.length > 0) {
@@ -663,7 +719,8 @@ async function humanizar() {
 
             if (ia_default === "chrome") {
                 respuestaHumanizadaTemp = await humanizeTextChrome(aHumanizar);
-                respuestaHumanizada = respuestaHumanizadaTemp.humanized_text;
+                const restpuJ = JSON.parse(stripLeadingJsonFences(respuestaHumanizadaTemp));
+                respuestaHumanizada = restpuJ.humanized_text;
             } else if (ia_default === "openai") {
                 respuestaHumanizadaTemp = await humanizedWithOpenAI(aHumanizar);
                 const reply = respuestaHumanizadaTemp.choices?.[0]?.message?.content || respuestaHumanizadaTemp.choices?.[0]?.text || '';
@@ -675,7 +732,7 @@ async function humanizar() {
                 const restpuJ = JSON.parse(stripLeadingJsonFences(reply));
                 respuestaHumanizada = restpuJ.humanized_text;
             }
-
+            Swal.close();
             Swal.fire({
                 title: leng.RESULT_HUMAN,
                 html: `<div style="max-height: 300px; overflow-y: auto; text-align: left;">${respuestaHumanizada}</div>`,
@@ -690,6 +747,7 @@ async function humanizar() {
                 if (result.isConfirmed) {
                     texto.value = respuestaHumanizada;
                 } else if (result.isDenied) {
+
                     navigator.clipboard.writeText(respuestaHumanizada)
                         .then(() => Swal.fire(leng.EXITO_SWAL, '', 'success'))
                         .catch(() => Swal.fire('Error', '', 'error'));
@@ -697,15 +755,17 @@ async function humanizar() {
             });
 
         } else {
+            Swal.close();
             Swal.fire({
                 title: '¡Error!',
                 text: leng.ERROR_NO_TEXT,
                 icon: 'error',
                 confirmButtonText: leng.BTN_ENTIENDO,
-                allowOutsideClick: false
             });
         }
     } catch (err) {
+        console.warn(err);
+        Swal.close();
         Swal.fire({
             title: 'Error',
             html: leng.ERROR_RESPUESTA_MAL,

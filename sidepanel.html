@@ -79,7 +79,7 @@
                     <div class="col-12">
                         <div class="d-flex justify-content-center align-items-center gap-3">
                             <div class="text-center">
-                                <div class="small" style="font-weight:500;">Probabilidad (IA)</div>
+                                <div class="small" style="font-weight:500;" id="probabilidad"></div>
                                 <div id="gaugePercent" class="h5 fw-bold mt-1">-%</div>
                             </div>
                             <canvas id="gaugeCanvas" width="200" height="100"
@@ -227,13 +227,16 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="row" style="margin-top: 10px;">
-                                    <div class="col-8 offset-1">
-                                        <button id="save-ia-config" class="btn btn-sm btn-success me-1"
-                                            title="Guardar Datos de IA"><i class="fa fa-floppy-o"></i></button>
+                                <div class="row">
+                                    <div class="col-10 offset-1">
+                                        <label id="msg_ia">Al cambiar de IA, Modelo o Token, debes guardar los cambios.</label>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 5px;">
+                                    <div class="col-8 offset-1">                                        <button id="save-ia-config" class="btn btn-sm btn-success me-1"
+                                            title=""><i class="fa fa-floppy-o"></i></button>
                                         <button id="delete-ia-config" disabled class="btn btn-sm btn-secondary me-1"
-                                            title="Guardar Datos de IA"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                            title=""><i class="fa fa-trash" aria-hidden="true"></i></button>
                                     </div>
                                 </div>
                             </div>

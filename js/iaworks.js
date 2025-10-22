@@ -5,54 +5,47 @@ setting_leng();
 
 
 async function callGeminiAI(systemPrompt, userPrompt) {
-  try {
-    // Mostrar loader (igual que en tu función original)
+
+  // Mostrar loader (igual que en tu función original)
+  Swal.close();
+  Swal.fire({
+    icon: 'info',
+    title: leng.CARGANDO,
+    text: leng.ANALIZANDO,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  const { gemini_key } = await chrome.storage.sync.get(['gemini_key']);
+  const { gemini_model } = await chrome.storage.sync.get(['gemini_model']);
+  const GOOGLE_API_KEY = gemini_key;
+  const MODEL = gemini_model;
+
+  if (!GOOGLE_API_KEY) {
+    Swal.close();
+    result.innerText = leng.NO_API_GOOGLE;
     Swal.fire({
-      icon: 'info',
-      title: leng.CARGANDO,
-      text: leng.ANALIZANDO,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => Swal.showLoading()
+      title: 'Error',
+      html: leng.NO_API_GOOGLE,
+      icon: 'error',
+      confirmButtonText: leng.BTN_ENTIENDO
     });
+    btn.disabled = false;
+    return;
+  }
 
-    const { gemini_key } = await chrome.storage.sync.get(['gemini_key']);
-    const { gemini_model } = await chrome.storage.sync.get(['gemini_model']);
-
-    const GOOGLE_API_KEY = gemini_key;
-    const MODEL = gemini_model;
-
-    if (!GOOGLE_API_KEY) {
-      Swal.close();
-      result.innerText = leng.NO_API_GOOGLE;
-      Swal.fire({
-        title: 'Error',
-        html: leng.NO_API_GOOGLE,
-        icon: 'error',
-        confirmButtonText: leng.BTN_ENTIENDO
-      });
-      btn.disabled = false;
-      return;
+  const system = systemPrompt;
+  const user = userPrompt;
+  const body = {
+    contents: [{ parts: [{ text: system + "\n\n" + user }] }],
+    generationConfig: {
+      temperature: 0,
+      candidateCount: 1
     }
+  };
 
-    const system = systemPrompt;
-
-    const user = userPrompt;
-
-    const body = {
-      contents: [
-        {
-          parts: [
-            { text: system + "\n\n" + user }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0,
-        candidateCount: 1
-      }
-    };
-
+  try {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
     const resp = await fetch(endpoint, {
@@ -64,13 +57,14 @@ async function callGeminiAI(systemPrompt, userPrompt) {
       body: JSON.stringify(body)
     });
 
+    const status = resp.status;
+
+    if (status > 300) {
+      throw new Error(`Error HTTP`);
+    }
+
     if (!resp.ok) {
-      Swal.fire({
-        title: 'Error',
-        html: leng.ERROR_GEMINI1,
-        icon: 'error',
-        confirmButtonText: leng.BTN_ENTIENDO
-      });
+      throw new Error(`Respuesta no valida`);
     }
 
     const dataJson = await resp.json();
@@ -92,14 +86,9 @@ async function callGeminiAI(systemPrompt, userPrompt) {
         if (dataJson?.output?.[0]?.content?.[0]?.text) replyText = dataJson.output[0].content[0].text;
         else if (typeof dataJson === 'string') replyText = dataJson;
       }
-    } catch (e) {
+    } catch (err) {
       replyText = '';
-      Swal.fire({
-        title: 'Error',
-        html: leng.ERROR_GEMINI1,
-        icon: 'error',
-        confirmButtonText: leng.BTN_ENTIENDO
-      });
+      throw new Error(`Parsing error`);
     }
 
     replyText = String(replyText || '').trim();
@@ -116,81 +105,132 @@ async function callGeminiAI(systemPrompt, userPrompt) {
 
     Swal.close();
     return normalized;
-  } catch (err) {
+  }
+  catch (err) {
     Swal.close();
-    Swal.fire("Error", leng.ERROR_GEMINI1, "error");
+    if (err.message === 'Error HTTP') {
+      Swal.fire({
+        title: 'Error',
+        html: leng.ERROR_HTTP,
+        icon: 'error',
+        confirmButtonText: leng.BTN_ENTIENDO
+      });
+      return false;
+
+    } else if (err.message === 'Parsing error') {
+      Swal.fire({
+        title: 'Error',
+        html: leng.ERROR_RESPUESTA_NOPARSEABLE,
+        icon: 'error',
+        confirmButtonText: leng.BTN_ENTIENDO
+      });
+      return false;
+    } else {
+      Swal.fire({
+        title: 'Error',
+        html: leng.ERROR_EN_ANALISIS,
+        icon: 'error',
+        confirmButtonText: leng.BTN_ENTIENDO
+      });
+      return false;
+    }
   }
 }
 
 async function callOpenAI(systemPrompt, userPrompt) {
-  try {
-    // Obtener clave desde storage
+
+  // Obtener clave desde storage
+  Swal.close();
+  Swal.fire({
+    icon: 'info',
+    title: leng.CARGANDO,
+    text: leng.ANALIZANDO,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  const { openai_key } = await chrome.storage.sync.get(['openai_key']);
+  const { openai_model } = await chrome.storage.sync.get(['openai_model']);
+  let key = openai_key;
+  key = key.trim();
+  const MODEL = openai_model;
+
+  if (!key) {
+    result.innerText = "";
+    Swal.close();
     Swal.fire({
-      icon: 'info',
-      title: leng.CARGANDO,
-      text: leng.ANALIZANDO,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => Swal.showLoading()
+      title: 'Error',
+      html: leng.NO_OPENAI,
+      icon: 'error',
+      confirmButtonText: leng.BTN_ENTIENDO
     });
+    btn.disabled = false;
+    return;
+  }
 
-    //const data = await storageGet(['openai_key']);
-    ///const key = data.openai_key;
-    const { openai_key } = await chrome.storage.sync.get(['openai_key']);
-    const key = openai_key;
-    if (!key) {
-      result.innerText = "";
-      Swal.fire({
-        title: 'Error',
-        html: leng.NO_OPENAI,
-        icon: 'error',
-        confirmButtonText: leng.BTN_ENTIENDO
-      });
-      btn.disabled = false;
-      return;
-    }
+  const system = systemPrompt;
+  const user = userPrompt;
+  const body = {
+    model: MODEL,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user }
+    ],
+    temperature: 1
+  };
 
-    // Preparar prompt / body
-    const system = systemPrompt;
-    const user = userPrompt;
+  try {
 
-    const body = {
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user }
-      ],
-      temperature: 0
-    };
-
-    // Llamada a la API
     const resp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`
+        'Authorization': 'Bearer ' + key
       },
       body: JSON.stringify(body)
     });
 
+    const status = resp.status;
+
+    if (status > 300) {
+      throw new Error(`Error HTTP`);
+    }
+
     if (!resp.ok) {
-      throw new Error(`OpenAI API error ${resp.status}: ${textErr}`);
+      throw new Error(`Respuesta no valida`);
     }
 
     const dataJson = await resp.json();
+
     Swal.close();
     return dataJson;
   } catch (err) {
-    Swal.fire({
-      title: 'Error',
-      html: leng.ERROR_OPENAI1,
-      icon: 'error',
-      confirmButtonText: leng.BTN_ENTIENDO
-    });
+    Swal.close();
+    if (err.message === 'Error HTTP') {
+      Swal.fire({
+        title: 'Error',
+        html: leng.ERROR_HTTP,
+        icon: 'error',
+        confirmButtonText: leng.BTN_ENTIENDO
+      });
+      return false;
+    } else {
+      Swal.fire({
+        title: 'Error',
+        html: leng.ERROR_EN_ANALISIS,
+        icon: 'error',
+        confirmButtonText: leng.BTN_ENTIENDO
+      });
+      return false;
+    }
   }
 }
 
+
 async function callChromeAI(systemPrompt, userPrompt) {
+
+  Swal.close();
   Swal.fire({
     icon: 'info',
     title: leng.CARGANDO,
@@ -211,28 +251,33 @@ async function callChromeAI(systemPrompt, userPrompt) {
 
   let session = null;
   try {
-
     const availability = await LanguageModel.availability(LLM_OPTS);
-
     if (availability === 'unavailable') {
       Swal.close();
       Swal.fire('Error', leng.ERROR_MODELO_CHROME, 'error');
       return;
     }
+  } catch (err) {
+    Swal.close();
+    Swal.fire('Error', leng.ERROR_MODELO_CHROME, 'error');
+    return;
+  }
 
+  try {
     session = await LanguageModel.create(LLM_OPTS);
     const rawAnswer = await session.prompt([{ role: 'user', content: userPrompt }], LLM_OPTS);
-
     Swal.close();
     return rawAnswer;
   } catch (err) {
     Swal.close();
-    Swal.fire('Error', leng.ERROR_MODELO_CHROME, 'error');
-  } finally {
-    try {
-      if (session)
-        session.destroy();
-    } catch (e) { console.warn('destroy error', e); }
+    Swal.fire({
+      title: 'Error',
+      html: leng.ERROR_EN_ANALISIS,
+      icon: 'error',
+      confirmButtonText: leng.BTN_ENTIENDO
+    });
+    return false;
+
   }
 }
 
@@ -249,6 +294,7 @@ export async function testOpenAIConfig() {
     });
 
     if (!resp.ok) {
+      Swal.close();
       Swal.fire({
         icon: 'error',
         title: leng.MSG_ERROR_SWAL,
@@ -264,6 +310,7 @@ export async function testOpenAIConfig() {
     const exists = data.data.some(m => m.id === openai_model);
 
     if (exists) {
+      Swal.close();
       Swal.fire({
         icon: 'success',
         title: leng.EXITO_SWAL,
@@ -273,6 +320,7 @@ export async function testOpenAIConfig() {
 
       return true;
     } else {
+      Swal.close();
       Swal.fire({
         icon: 'error',
         title: 'Upss!',
@@ -284,6 +332,7 @@ export async function testOpenAIConfig() {
       return false;
     }
   } catch (e) {
+    Swal.close();
     Swal.fire({
       icon: 'error',
       title: 'Upss!',
@@ -634,11 +683,9 @@ export async function humanizeTextChrome(text) {
 
 
       const raw = await session.prompt(prompt);
-      const humanized = (typeof raw === 'string') ? raw.trim() : (raw?.text || '');
-
       try { await session.destroy(); } catch (e) { /* ignore */ }
 
-      if (humanized) return { humanized_text: humanized };
+      return raw;
     }
   } catch (err) {
     console.warn('Prompt API fallback falló:', err);
@@ -662,7 +709,7 @@ export async function humanizedWithGeminiAI(text) {
   if (lenguaje === 'es') {
     let respuesta = await callGeminiAI(systemPromptHumanized_es, buildUserPromptHumanized_es(text))
     return respuesta
-  }else{
+  } else {
     let respuesta = await callGeminiAI(systemPromptHumanized_en, buildUserPromptHumanized_en(text))
     return respuesta
   }
