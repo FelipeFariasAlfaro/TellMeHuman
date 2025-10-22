@@ -33,15 +33,15 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
   const selectionFromInfo = info.selectionText?.trim();
 
-  chrome.sidePanel.open({ tabId: tab.id }).catch(err => {
-    console.error("Error abriendo sidePanel:", err);
-  });
+  chrome.sidePanel.open({ tabId: tab.id }).catch(err => {});
 
   if (info.menuItemId === "analyze-selection") {
-    try {
+    
       chrome.storage.sync.set({ textfromhtml: selectionFromInfo }, async () => { });
-      chrome.runtime.sendMessage({ action: "envio_texto", value: selectionFromInfo });
-    } catch (e) { }
+      chrome.runtime.sendMessage({ action: "envio_texto", value: selectionFromInfo }).catch(e => {
+        if (e.message.includes('Receiving end does not exist')) {}
+      });
+    
   }
   else if (info.menuItemId === "pertinence-selection") {
       chrome.storage.sync.set({ textpertinencefromhtml: selectionFromInfo }, async () => { });
