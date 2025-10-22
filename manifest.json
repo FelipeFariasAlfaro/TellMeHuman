@@ -8,8 +8,7 @@
     "storage",
     "sidePanel",
     "tabs",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "icons": {
     "16": "img/16x16.png",
