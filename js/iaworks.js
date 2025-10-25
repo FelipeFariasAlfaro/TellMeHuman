@@ -293,44 +293,49 @@ export async function testOpenAIConfig() {
       }
     });
 
-    if (!resp.ok) {
+    console.log("Codigo:", resp.status);
+    if (!resp.ok || resp.status === 401) {
+      console.log("Entré!");
       Swal.close();
       Swal.fire({
         icon: 'error',
-        title: leng.MSG_ERROR_SWAL,
-        text: leng.MSG_IA_OPENAI_ERROR_TOKEN,
+        title: 'Upsss! error',
+        text: leng.ERROR_OPENAI1,
         confirmButtonText: leng.BTN_ENTIENDO
       });
       document.getElementById('openai-token').value = '';
       await chrome.storage.sync.set({ openai_key: '' });
       return false;
+    } 
+    else {
+      const data = await resp.json();
+      const exists = data.data.some(m => m.id === openai_model);
+
+      if (exists) {
+        Swal.close();
+        Swal.fire({
+          icon: 'success',
+          title: leng.EXITO_SWAL,
+          text: leng.MSG_IA_GUARDADO_OK,
+          confirmButtonText: 'OK'
+        });
+
+        return true;
+      } else {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Upss!',
+          text: leng.ERROR_OPENAI_VALIDACION,
+          confirmButtonText: leng.BTN_ENTIENDO
+        });
+        document.getElementById('openai-token').value = '';
+        await chrome.storage.sync.set({ openai_key: '' });
+        return false;
+      }
     }
 
-    const data = await resp.json();
-    const exists = data.data.some(m => m.id === openai_model);
 
-    if (exists) {
-      Swal.close();
-      Swal.fire({
-        icon: 'success',
-        title: leng.EXITO_SWAL,
-        text: leng.MSG_IA_GUARDADO_OK,
-        confirmButtonText: 'OK'
-      });
-
-      return true;
-    } else {
-      Swal.close();
-      Swal.fire({
-        icon: 'error',
-        title: 'Upss!',
-        text: leng.ERROR_OPENAI_VALIDACION,
-        confirmButtonText: leng.BTN_ENTIENDO
-      });
-      document.getElementById('openai-token').value = '';
-      await chrome.storage.sync.set({ openai_key: '' });
-      return false;
-    }
   } catch (e) {
     Swal.close();
     Swal.fire({

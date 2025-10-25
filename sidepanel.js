@@ -236,7 +236,7 @@ async function settingIA() {
             label_iainuse1.innerHTML = "Detector: Google Gemini";
             label_iainuse2.innerHTML = "Detector: Google Gemini";
 
-        } else if (ia_default === "openai") {
+        } else /*if (ia_default === "openai")*/ {
             openai_data.style = 'display:block';
             gemini_data.style = 'display:none';
             iaselect.value = "OpenAI";
@@ -244,7 +244,7 @@ async function settingIA() {
             const { openai_key } = await chrome.storage.sync.get(['openai_key']);
             openai_token.value = openai_key || '';
             const { openai_model } = await chrome.storage.sync.get(['openai_model']);
-            openai_modelo.value = openai_model || '';
+            openai_modelo.value = openai_model || 'gpt-5';
             if (openai_token.value.length > 0) {
                 delete_ia_config.disabled = false;
             } else {
@@ -253,24 +253,27 @@ async function settingIA() {
             label_iainuse1.innerHTML = "Detector: OpenAI";
             label_iainuse2.innerHTML = "Detector: OpenAI";
 
-        } else if (ia_default === "chrome") {
-            openai_data.style = 'display:none';
-            gemini_data.style = 'display:none';
-            iaselect.value = "ChromeIA";
-            delete_ia_config.disabled = true;
-            label_iainuse1.innerHTML = "Detector: Chrome AI";
-            label_iainuse2.innerHTML = "Detector: Chrome AI";
-        } else {
-            await chrome.storage.sync.set({
-                ia_default: 'chrome'
-            });
-            openai_data.style = 'display:none';
-            gemini_data.style = 'display:none';
-            iaselect.value = "ChromeIA";
-            delete_ia_config.disabled = true;
-            label_iainuse1.innerHTML = "Detector: Chrome AI";
-            label_iainuse2.innerHTML = "Detector: Chrome AI";
         }
+        /*else if (ia_default === "chrome") {
+            openai_data.style = 'display:none';
+            gemini_data.style = 'display:none';
+            iaselect.value = "ChromeIA";
+            delete_ia_config.disabled = true;
+            label_iainuse1.innerHTML = "Detector: Chrome AI";
+            label_iainuse2.innerHTML = "Detector: Chrome AI";} 
+        else {
+            /*
+                await chrome.storage.sync.set({
+                    ia_default: 'chrome'
+                });
+                openai_data.style = 'display:none';
+                gemini_data.style = 'display:none';
+                iaselect.value = "ChromeIA";
+                delete_ia_config.disabled = true;
+                label_iainuse1.innerHTML = "Detector: Chrome AI";
+                label_iainuse2.innerHTML = "Detector: Chrome AI";
+            
+        }*/
     } catch (err) {
         Swal.close();
         Swal.fire({
@@ -341,7 +344,12 @@ async function updateIACombo() {
         gemini_data.style = 'display:none';
 
         if (openai_key) { openai_token.value = openai_key; }
-        if (openai_model) { openai_modelo.value = openai_model }
+        if (openai_model) {
+            openai_modelo.value = openai_model
+
+        } else {
+            openai_modelo.value = "gpt-5";
+        }
 
         if (openai_token.value.length > 0) {
             delete_ia_config.disabled = false;
@@ -397,15 +405,16 @@ async function saveIaSettings() {
                 await chrome.storage.sync.set({ openai_key: token });
                 await chrome.storage.sync.set({ ia_default: 'openai' });
                 await chrome.storage.sync.set({ openai_model: model });
-                if (await testOpenAIConfig())
+                if (await testOpenAIConfig()){
                     delete_ia_config.disabled = false;
-                Swal.close();
-                Swal.fire({
-                    icon: 'success',
-                    title: leng.EXITO_SWAL,
-                    text: leng.MSG_IA_OPENAI_OK,
-                    confirmButtonText: 'OK'
-                });
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'success',
+                        title: leng.EXITO_SWAL,
+                        text: leng.MSG_IA_OPENAI_OK,
+                        confirmButtonText: 'OK'
+                    });
+                }
             } else {
                 Swal.close();
                 Swal.fire({

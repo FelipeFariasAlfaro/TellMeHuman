@@ -70,5 +70,6 @@
     "PROBABILIDAD": "Probabilidad de IA",
     "MSG_CAMBIOSIA":"Al cambiar de IA, Modelo o Token, debes guardar los cambios.",
 
-    "ERROR_HTTP":"Error al conectar con el servicio de IA (Puede que no esté disponible temporalmente). Si el problema persiste intenta cambiando de Modelo."
+    "ERROR_HTTP":"Error al conectar con el servicio de IA (Puede que no esté disponible temporalmente). Si el problema persiste intenta cambiando de Modelo o verifica que tu TOKEN DE API sea correcto."
+
 }

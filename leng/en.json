@@ -70,5 +70,5 @@
     "PROBABILIDAD": "AI Probability",
     "MSG_CAMBIOSIA":"When changing AI, Model or Token, you must save the changes.",
 
-    "ERROR_HTTP":"Error connecting to the AI ​​service (It may be temporarily unavailable). If the problem persists, try changing the Model."
+    "ERROR_HTTP":"Error connecting to the AI ​​service (It may be temporarily unavailable). If the problem persists, try changing the Model or Review you API TOKEN"
 }
