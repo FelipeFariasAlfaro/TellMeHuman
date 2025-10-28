@@ -20,7 +20,9 @@ This guide explains how to validate functionality, fallbacks, i18n, performance,
    - Extension icon is visible.
    - **Service Worker** is running (Inspect views).
    - The **Side Panel** opens from the extension icon.
-5. Make sure you have the Chrome AI Gemini Prompt API enabled at chrome://on-device-internals/
+5. (optional)Make sure you have the Chrome AI Gemini Prompt API enabled at chrome://on-device-internals/
+ If you try to use Chrome AI, Tell Me Human will automatically try to enable local AI features in your browser.
+6. (optional) Configure your OPENAI token or Gemini token 
 ---
 
 ## 2) Smoke test (2 minutes)
@@ -91,6 +93,6 @@ This guide explains how to validate functionality, fallbacks, i18n, performance,
 ---
 
 ## 8) Troubleshooting
-- **On-device APIs unavailable:** Chrome’s local AI APIs must be enabled; otherwise the user should pick a cloud provider.
+- **On-device APIs unavailable:** If you try to use Chrome AI, Tell Me Human will automatically try to enable local AI features in your browser; otherwise the user should pick a cloud provider.
 - **JSON parsing:** ensure **single-line** responses; sanitize backticks/markdown.
 - **Rate limits/invalid keys:** clear messages (SweetAlert2).

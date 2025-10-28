@@ -18,7 +18,7 @@ Detect likely AI-written text, check pertinence/safety, and humanize content in 
 - **Google Chrome 128+** (test on Stable/Beta/Canary).
 - **Developer mode** enabled.
 - (Optional) **API keys** for OpenAI / Gemini if you want cloud fallbacks.
-
+- If you try to use Chrome AI, Tell Me Human will automatically try to enable local AI features in your browser.
 ---
 
 ## 🚀 Installation (Unpacked)
@@ -30,7 +30,8 @@ Detect likely AI-written text, check pertinence/safety, and humanize content in 
    - The extension icon is visible.
    - The **Service Worker** is running (`chrome://extensions/` → “Service worker” → “Inspect views”).
    - The **Side Panel** opens (extension icon → “Open Side Panel”).
-6. Make sure you have the Chrome AI Gemini Prompt API enabled at chrome://on-device-internals/
+6. (Optionally) Make sure you have the Chrome AI Gemini Prompt API enabled at chrome://on-device-internals/ 
+ If you try to use Chrome AI, Tell Me Human will automatically try to enable local AI features in your browser.
 ---
 
 ## 🧪 Quick Start (2 minutes)
@@ -48,6 +49,7 @@ Detect likely AI-written text, check pertinence/safety, and humanize content in 
 
 ### On-device Chrome AI
 - The extension auto-detects **Chrome AI on-device**.
+If you try to use Chrome AI, Tell Me Human will automatically try to enable local AI features in your browser.
 - When available, analysis and humanization run **locally** (no text leaves the browser).
 - If your Chrome doesn’t expose these APIs, check version/channel/flags.
 
