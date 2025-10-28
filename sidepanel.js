@@ -48,9 +48,9 @@ const advertenciaheader2 = document.getElementById('advertencia2');
 const advertenciageneral = document.getElementById('advertenciageneral');
 const about = document.getElementById('about');
 const msg_ia = document.getElementById('msg_ia');
+const cofee = document.getElementById('cofee');
 
 const MAX = 2000;
-setting_leng();
 
 // Lógica para procesar el texto recibido
 const processTextPayload = (text) => {
@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearPerticencebtn.addEventListener('click', clearAllPertinence);
     texto_pertinence.addEventListener('keyup', updateCounterPertinence);
     humanizer.addEventListener('click', humanizar);
+    cofee.addEventListener('click', invitame);
     //inicializa front
     await initFront();
     //carga el texto seleccionado si corresponde
@@ -236,7 +237,7 @@ async function settingIA() {
             label_iainuse1.innerHTML = "Detector: Google Gemini";
             label_iainuse2.innerHTML = "Detector: Google Gemini";
 
-        } else /*if (ia_default === "openai")*/ {
+        } else if (ia_default === "openai") {
             openai_data.style = 'display:block';
             gemini_data.style = 'display:none';
             iaselect.value = "OpenAI";
@@ -254,26 +255,27 @@ async function settingIA() {
             label_iainuse2.innerHTML = "Detector: OpenAI";
 
         }
-        /*else if (ia_default === "chrome") {
+        else if (ia_default === "chrome") {
             openai_data.style = 'display:none';
             gemini_data.style = 'display:none';
             iaselect.value = "ChromeIA";
             delete_ia_config.disabled = true;
             label_iainuse1.innerHTML = "Detector: Chrome AI";
-            label_iainuse2.innerHTML = "Detector: Chrome AI";} 
+            label_iainuse2.innerHTML = "Detector: Chrome AI";
+        }
         else {
-            /*
-                await chrome.storage.sync.set({
-                    ia_default: 'chrome'
-                });
-                openai_data.style = 'display:none';
-                gemini_data.style = 'display:none';
-                iaselect.value = "ChromeIA";
-                delete_ia_config.disabled = true;
-                label_iainuse1.innerHTML = "Detector: Chrome AI";
-                label_iainuse2.innerHTML = "Detector: Chrome AI";
-            
-        }*/
+
+            await chrome.storage.sync.set({
+                ia_default: 'chrome'
+            });
+            openai_data.style = 'display:none';
+            gemini_data.style = 'display:none';
+            iaselect.value = "ChromeIA";
+            delete_ia_config.disabled = true;
+            label_iainuse1.innerHTML = "Detector: Chrome AI";
+            label_iainuse2.innerHTML = "Detector: Chrome AI";
+
+        }
     } catch (err) {
         Swal.close();
         Swal.fire({
@@ -286,11 +288,12 @@ async function settingIA() {
 }
 
 async function setting_initial_lenguaje() {
-    const { activate } = await chrome.storage.sync.get('activate');
-    //si es primer ingreso, pedir idioma
+
+    const { activate } = await chrome.storage.sync.get({ activate: false });
+
     if (!activate || activate === false) {
         Swal.close();
-        Swal.fire({
+        const result = await Swal.fire({
             title: 'Selecciona tu idioma / Select your language',
             showDenyButton: true,
             showCancelButton: true,
@@ -299,20 +302,18 @@ async function setting_initial_lenguaje() {
             cancelButtonText: 'Cerrar',
             allowOutsideClick: true,
             allowEscapeKey: true
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await chrome.storage.sync.set({ activate: 'true' });
-                await chrome.storage.sync.set({ lenguaje: 'es' });
-            } else if (result.isDenied) {
-                await chrome.storage.sync.set({ activate: 'true' });
-                await chrome.storage.sync.set({ lenguaje: 'en' });
-            } else {
-                await chrome.storage.sync.set({ activate: 'false' });
-                return;
-            }
         });
+
+        if (result.isConfirmed) {
+            await chrome.storage.sync.set({ activate: true, lenguaje: 'es' });
+        } else if (result.isDenied) {
+            await chrome.storage.sync.set({ activate: true, lenguaje: 'en' });
+        } else {
+            await chrome.storage.sync.set({ activate: false });
+        }
     }
 }
+
 
 async function updateIACombo() {
     const ia_selected = iaselect.value;
@@ -405,7 +406,7 @@ async function saveIaSettings() {
                 await chrome.storage.sync.set({ openai_key: token });
                 await chrome.storage.sync.set({ ia_default: 'openai' });
                 await chrome.storage.sync.set({ openai_model: model });
-                if (await testOpenAIConfig()){
+                if (await testOpenAIConfig()) {
                     delete_ia_config.disabled = false;
                     Swal.close();
                     Swal.fire({
@@ -517,10 +518,38 @@ async function analizeWithIA() {
     const { ia_default } = await chrome.storage.sync.get(['ia_default']);
 
     if (ia_default === "chrome") {
-        var jsonTemp = await analizewithChrome(text);
-        if (jsonTemp === false) { return }
-        json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
-        json = json.replace('"}', '"]}');
+
+        const { uselocal } = await chrome.storage.sync.get('uselocal');
+        var validadorUso = true;
+
+        if (!uselocal || uselocal === 'false') {
+            await chrome.storage.sync.set({ uselocal: false });
+            const result = await Swal.fire({
+                title: leng.INFORMACION,
+                html: leng.MSG_FIRST_IA,
+                showCancelButton: true,
+                confirmButtonText: leng.CONTINUAR,
+                cancelButtonText: leng.CERRAR,
+                allowOutsideClick: true,
+                allowEscapeKey: true
+            });
+            if (result.isConfirmed) {
+                validadorUso = true;
+            } else {
+                validadorUso = false;
+            }
+        }
+        if (validadorUso) {
+            var jsonTemp = await analizewithChrome(text);
+            if (jsonTemp === false) { return }
+            json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
+            json = json.replace('"}', '"]}');
+            await chrome.storage.sync.set({ uselocal: true });
+        }else{
+            return;
+        }
+
+
 
     } else if (ia_default === "gemini") {
 
@@ -782,6 +811,26 @@ async function humanizar() {
             confirmButtonText: leng.BTN_ENTIENDO
         });
     }
+}
 
+async function invitame()
+{
+    Swal.fire({
+    title: leng.COFFEE_TITULO + ' ☕',
+    html: leng.COFFEE_MSG,
+    imageUrl: '/img/cafe.png',
+    imageWidth: 128,
+    imageHeight: 128,
+    imageAlt: 'Café icon',
+    showCancelButton: true,
+    showConfirmButton: false,                 // activa un segundo botón
+    confirmButtonText: 'OK',
+    cancelButtonText: leng.COFFEE_BTN,    // texto del botón extra
+    width: "80%"
+  }).then((result) => {
+    if (result.dismiss === Swal.DismissReason.cancel) {
+      window.open('https://buymeacoffee.com/felipefariasa', '_blank');
+    }
+  });
 }
 

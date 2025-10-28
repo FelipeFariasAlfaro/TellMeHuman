@@ -1,16 +1,18 @@
 # TESTING.md — Test Guide for *Tell Me Human* (Chrome Extension MV3)
 
+This guide explains how to validate functionality, fallbacks, i18n, performance, accessibility, and privacy.
+
 ---
 
 ## 0) Requirements
-- **Google Chrome 114+** (test on Stable/Beta/Canary).
+- **Google Chrome 128+** (test on Stable/Beta/Canary).
 - **Developer mode** enabled in `chrome://extensions/`.
-- **OpenAI/Gemini** API keys for cloud.
+- (Optional) **OpenAI/Gemini** API keys for cloud.
 - Sample texts for testing.
 
 ---
 
-## 1) Installation (unpacked) & Configure
+## 1) Installation (unpacked) & configure
 1. Unzip the project into a local folder.
 2. Open `chrome://extensions/` and enable **Developer mode**.
 3. Click **Load unpacked** and select the project folder.
@@ -18,7 +20,7 @@
    - Extension icon is visible.
    - **Service Worker** is running (Inspect views).
    - The **Side Panel** opens from the extension icon.
-5. **IMPORTANT** Configure your API KEY for GEMINI or OPENAI, and select de model to use.
+5. Make sure you have the Chrome AI Gemini Prompt API enabled at chrome://on-device-internals/
 ---
 
 ## 2) Smoke test (2 minutes)
@@ -89,5 +91,6 @@
 ---
 
 ## 8) Troubleshooting
+- **On-device APIs unavailable:** Chrome’s local AI APIs must be enabled; otherwise the user should pick a cloud provider.
 - **JSON parsing:** ensure **single-line** responses; sanitize backticks/markdown.
 - **Rate limits/invalid keys:** clear messages (SweetAlert2).

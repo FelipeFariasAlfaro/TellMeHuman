@@ -1,6 +1,6 @@
 # Tell Me Human — Chrome Extension (MV3)
 
-Detect likely AI-written text, check pertinence/safety, and humanize content in one click — directly in Chrome’s Side Panel. 
+Detect likely AI-written text, check pertinence/safety, and humanize content in one click — directly in Chrome’s Side Panel or via the context menu. Privacy-first: prefers **on-device** Chrome AI when available; optional cloud OpenAI/Gemini with your own API keys.
 
 ---
 
@@ -11,17 +11,17 @@ Detect likely AI-written text, check pertinence/safety, and humanize content in 
 - **Side Panel + Context Menu** entry points; works in **English/Spanish**.
 - **Privacy-first:** on-device analysis when supported; optional cloud fallbacks (user-provided keys).
 - **Strict JSON outputs** for reliable parsing (single-line, no wrappers).
--**Can use** OPENAI or GEMINI IA. 
+
 ---
 
 ## 🧰 Requirements
-- **Google Chrome 114+** (test on Stable/Beta/Canary).
+- **Google Chrome 128+** (test on Stable/Beta/Canary).
 - **Developer mode** enabled.
-- **API keys** for OpenAI / Gemini.
+- (Optional) **API keys** for OpenAI / Gemini if you want cloud fallbacks.
 
 ---
 
-## 🚀 Installation (Unpacked) & Configure
+## 🚀 Installation (Unpacked)
 1. Unzip the project into a local folder.
 2. Open `chrome://extensions/`.
 3. Enable **Developer mode** (top-right).
@@ -30,7 +30,7 @@ Detect likely AI-written text, check pertinence/safety, and humanize content in 
    - The extension icon is visible.
    - The **Service Worker** is running (`chrome://extensions/` → “Service worker” → “Inspect views”).
    - The **Side Panel** opens (extension icon → “Open Side Panel”).
-6. **IMPORTANT** Configure your API KEY for GEMINI or OPENAI, and select de model to use.
+6. Make sure you have the Chrome AI Gemini Prompt API enabled at chrome://on-device-internals/
 ---
 
 ## 🧪 Quick Start (2 minutes)
@@ -46,12 +46,17 @@ Detect likely AI-written text, check pertinence/safety, and humanize content in 
 
 ## ⚙️ Configuration
 
-### OpenAI / Gemini
+### On-device Chrome AI
+- The extension auto-detects **Chrome AI on-device**.
+- When available, analysis and humanization run **locally** (no text leaves the browser).
+- If your Chrome doesn’t expose these APIs, check version/channel/flags.
+
+### Fallbacks (OpenAI / Gemini)
 - In the Side Panel → **Settings**:
   - Enable **OpenAI** or **Gemini**.
   - Paste your **API key** (stored in `chrome.storage.sync`).
 - Choose provider/model and adjust limits (tokens/temperature) per your account.
-> **Privacy:** your text is sent to the selected provider.
+> **Privacy:** with cloud fallbacks enabled, your text is sent to the selected provider. With on-device only, **no** text is sent externally.
 
 ---
 
@@ -101,18 +106,27 @@ The extension typically requests:
 
 ---
 
+
+## 🛡️ Privacy
+- **On-device first:** with fallbacks off, text **stays local**.
+- Cloud fallbacks send text to your chosen provider; never log API keys to console.
+
+---
+
 ## ❓ FAQ
 **Does it guarantee authorship?**  
 No. It provides **probabilities** and **explanations**; final judgment is human.
 
+**Do I need OpenAI/Gemini?**  
+Only for cloud fallbacks. On-device mode does not require external accounts.
+
+**Does it work offline?**  
+Yes, when on-device is available; otherwise network is required for fallbacks.
+
 **Which languages are supported?**  
 UI: EN/ES. Analysis/humanization follows the input language.
-
-**Data is sent to other sources**
-Data is sent only to the selected provider; OpenAI or Gemini.
 
 ---
 
 ## 📄 License
 MIT — see `LICENSE`.
-
