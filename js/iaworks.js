@@ -227,59 +227,234 @@ async function callOpenAI(systemPrompt, userPrompt) {
   }
 }
 
-
 async function callChromeAI(systemPrompt, userPrompt) {
+  //evita ejecutar dos veces ---
+  if (window.__callChromeAI_running) {
+    console.warn('[callChromeAI] invocation blocked: already running');
+    console.trace();
+    return false;
+  }
+  window.__callChromeAI_running = true;
 
-  Swal.close();
-  Swal.fire({
-    icon: 'info',
-    title: leng.CARGANDO,
-    text: leng.ANALIZANDO,
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => Swal.showLoading()
-  });
+  //--- Estado y flags ---
+  let session = null;
+  let modalType = null; // 'spinner' | 'download' | null
+  let downloadModalShown = false;
+  let firstDownloadEventSeen = false;
+  let successShown = false;
+  let createInProgress = false;
+  let debounceTimer = null;
+
+  function safeCloseSwal() {
+    try { Swal.close(); } catch (e) {}
+    modalType = null;
+  }
+
+  function showSpinnerModal() {
+    modalType = 'spinner';
+    try {
+      Swal.fire({
+        icon: 'info',
+        title: leng.CARGANDO,
+        text: leng.ANALIZANDO,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
+    } catch (e) { console.warn('showSpinnerModal err', e); }
+  }
+
+  function showDownloadModalOnce(initialText = leng.DOWNLOAD) {
+    if (downloadModalShown) return;
+    downloadModalShown = true;
+    modalType = 'download';
+    try {
+      Swal.fire({
+        title: leng.PREPARE_IA,
+        html: `
+          <div style="text-align:left">
+            <div id="ia-progress-text">${initialText}</div>
+            <div style="margin-top:8px">
+              <div style="background:#eee;border-radius:6px;overflow:hidden">
+                <div id="ia-progress-bar" style="width:0%;height:12px;transition:width 300ms ease"></div>
+              </div>
+            </div>
+            <div style="margin-top:6px;font-size:12px;color:#666">
+              ${leng.MSG_INTERNO_DOWNLOAD}
+            </div>
+          </div>
+        `,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      });
+    } catch (e) { console.warn('showDownloadModalOnce err', e); }
+  }
+
+  function updateDownloadProgressImmediate(pct, text) {
+    const container = Swal.getHtmlContainer();
+    if (!container) return;
+    const bar = container.querySelector('#ia-progress-bar');
+    const txt = container.querySelector('#ia-progress-text');
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+    if (txt && text) txt.textContent = text;
+  }
+  function updateDownloadProgress(pct, text) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => updateDownloadProgressImmediate(pct, text), 80);
+  }
+
+  function isIneligibleError(err) {
+    const msg = (err && err.message) ? err.message : ('' + err);
+    return /not.*eligible|elegible|device.*not.*eligible|not.*eligible.*for.*on-?device/i.test(msg);
+  }
+
+  // abrimos spinner inicial
+  safeCloseSwal();
+  showSpinnerModal();
 
   const { lenguaje } = await chrome.storage.sync.get(['lenguaje']);
 
-  // Para Chrome LanguageModel initialPrompts / prompt:
   const LLM_OPTS = {
     initialPrompts: [{ role: 'system', content: systemPrompt }],
     expectedInputs: [{ type: 'text', languages: ['' + lenguaje] }],
     expectedOutputs: [{ type: 'text', languages: ['' + lenguaje] }]
   };
 
-  let session = null;
   try {
-    const availability = await LanguageModel.availability(LLM_OPTS);
-    if (availability === 'unavailable') {
-      Swal.close();
+    // 1) availability (decisión inicial pero NO mostrar modal de descarga basándose solo en esto)
+    let availability;
+    try {
+      availability = await LanguageModel.availability(LLM_OPTS);
+    } catch (avErr) {
+      safeCloseSwal();
       Swal.fire('Error', leng.ERROR_MODELO_CHROME, 'error');
-      return;
+      return false;
     }
-  } catch (err) {
-    Swal.close();
-    Swal.fire('Error', leng.ERROR_MODELO_CHROME, 'error');
-    return;
-  }
 
-  try {
-    session = await LanguageModel.create(LLM_OPTS);
-    const rawAnswer = await session.prompt([{ role: 'user', content: userPrompt }], LLM_OPTS);
-    Swal.close();
-    return rawAnswer;
-  } catch (err) {
-    Swal.close();
-    Swal.fire({
-      title: 'Error',
-      html: leng.ERROR_EN_ANALISIS,
-      icon: 'error',
-      confirmButtonText: leng.BTN_ENTIENDO
+    if (availability === 'unavailable') {
+      safeCloseSwal();
+      Swal.fire('Error', leng.ERROR_MODELO_CHROME, 'error');
+      return false;
+    }
+
+    const alreadyAvailable = (availability === 'available');
+
+    // 2) create() con monitor — el monitor SOLO abrirá el modal de descarga si:
+    //    - availability !== 'available' (es decir, esperamos descarga posible), y
+    //    - create() aún está en progreso, y
+    //    - es el primer evento de downloadprogress recibido.
+    createInProgress = true;
+    session = await LanguageModel.create({
+      ...LLM_OPTS,
+      monitor: (m) => {
+        // attach handler defensivo
+        const attachHandler = (handler) => {
+          if (typeof m.addEventListener === 'function') m.addEventListener('downloadprogress', handler);
+          else if (typeof m.on === 'function') m.on('downloadprogress', handler);
+        };
+
+        attachHandler((e) => {
+          // ignorar eventos si availability dijo available
+          if (alreadyAvailable) {
+            return;
+          }
+
+          // ignorar si create ya terminó
+          if (!createInProgress) {
+            return;
+          }
+
+          // parse defensivo
+          let pct = null;
+          try {
+            if (typeof e.loaded === 'number' && typeof e.total === 'number' && e.total > 0) {
+              pct = Math.round((e.loaded / e.total) * 100);
+            } else if (typeof e.loaded === 'number' && e.loaded <= 1) {
+              pct = Math.round(e.loaded * 100);
+            } else if (typeof e.loaded === 'number') {
+              pct = Math.round(e.loaded);
+            } else if (e?.detail && typeof e.detail.progress === 'number') {
+              pct = Math.round(e.detail.progress * 100);
+            }
+          } catch (parseErr) {
+            console.warn('[callChromeAI] parse progress err', parseErr);
+          }
+
+          // Solo abrir modal de descarga si NO estaba disponible y es el primer evento
+          if (!firstDownloadEventSeen && !alreadyAvailable) {
+            firstDownloadEventSeen = true;
+            try { Swal.close(); } catch (_) {}
+            showDownloadModalOnce(leng.DOWNLOAD);
+          }
+
+          // actualizar barra si estamos en modal de descarga
+          if (modalType === 'download') {
+            if (pct !== null) updateDownloadProgress(pct, `${leng.AVANCE} ${pct}%`);
+            else updateDownloadProgress(0, `${leng.AVANCE}...`);
+          } else {
+            console.log('[callChromeAI] downloadprogress recibido pero modalType != download', e);
+          }
+        });
+      }
     });
-    return false;
 
+    // create() ya retornó
+    createInProgress = false;
+    console.log('[callChromeAI] create() completó, firstDownloadEventSeen=', firstDownloadEventSeen);
+
+    // Si había descarga real (availability != available) y vimos eventos -> pedir reinicio y SALIR
+    if (!alreadyAvailable && firstDownloadEventSeen) {
+      try { await chrome.storage.sync.set({ modelPendingRestart: true }); } catch (setErr) { console.warn('modelPendingRestart set err', setErr); }
+
+      safeCloseSwal();
+      if (!successShown) {
+        successShown = true;
+        await Swal.fire({
+          title: leng.DOWNLOAD_COMPLETE,
+          html: `${leng.MSG_COMPLETE}`,
+          icon: 'success',
+          confirmButtonText: leng.BTN_ENTIENDO
+        });
+      }
+
+      try { if (session && typeof session.destroy === 'function') session.destroy(); } catch (dErr) { console.warn('destroy err', dErr); }
+      return 'restart_required';
+    }
+
+    const rawAnswer = await session.prompt([{ role: 'user', content: userPrompt }], LLM_OPTS);
+    return rawAnswer;
+
+  } catch (err) {
+    console.error('[callChromeAI] error final', err);
+    safeCloseSwal();
+
+    if (isIneligibleError(err)) {
+      const res = await Swal.fire({
+        title: leng.NOCOMPATIBLE,
+        html: `${leng.MSG_NOCOMPATIBLE}`,
+        icon: 'error',
+        confirmButtonText: leng.BTN_ENTIENDO,
+      });
+      return false;
+    }
+
+    return false;
+  } finally {
+    try { 
+      if (session && typeof session.destroy === 'function') 
+        session.destroy(); 
+    } 
+    catch (destroyErr) { 
+      console.warn('Error destroying session', destroyErr); 
+    }
+    window.__callChromeAI_running = false;
   }
 }
+
+
+
+
 
 
 export async function testOpenAIConfig() {
@@ -306,7 +481,7 @@ export async function testOpenAIConfig() {
       document.getElementById('openai-token').value = '';
       await chrome.storage.sync.set({ openai_key: '' });
       return false;
-    } 
+    }
     else {
       const data = await resp.json();
       const exists = data.data.some(m => m.id === openai_model);

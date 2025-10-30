@@ -70,5 +70,17 @@
     "CONTINUAR": "Continuar",
     "COFFEE_TITULO": "Dale un café al dev",
     "COFFEE_MSG": "¿Tell Me Human te es útil? Invita un café al dev para aliviar el insomnio.",
-    "COFFEE_BTN": "Invitar un café"
+    "COFFEE_BTN": "Invitar un café",
+
+    "DOWNLOAD":"Descargando modelo...",
+    "PREPARE_IA":"Preparando IA (descarga)",
+    "MSG_INTERNO_DOWNLOAD": "Si aparece un diálogo del navegador, acepta para permitir la descarga.<br>Esto puede tardar varios minutos, no cierres este sidepanel<br><strong>Importante:</strong> Al finalizar intentaremos realizar la consulta, si ocurre un error puede que sea necesario reiniciar Google Chrome para activar la IA.",
+    "AVISO_DESCARGA":"El modelo no está en este equipo. Iniciando descarga...",
+    "DOWNLOAD_WAIT":"Descargando, espera...",
+    "AVANCE":"Descargado",
+    "NOCOMPATIBLE":"Tu dispositivo no es compatible",
+    "MSG_NOCOMPATIBLE":"<p>Este equipo no cumple los requisitos para ejecutar el modelo <strong>on-device</strong>.</p><p>Posibles soluciones: actualizar Chrome/Chromium, activar aceleración por hardware o usar otro equipo.</p><p>Desde las configuraciones puedes seleccionar el uso de Hakaboost con OpenAI o Gemini (cloud).</p>",
+    
+    "DOWNLOAD_COMPLETE":"Descarga completada",
+    "MSG_COMPLETE":"<p>El modelo on-device se descargó correctamente.</p><p>Es necesario <strong>reiniciar Chrome</strong> para completar la instalación.</p>"
 }
