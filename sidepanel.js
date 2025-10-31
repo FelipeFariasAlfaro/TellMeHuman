@@ -541,11 +541,12 @@ async function analizeWithIA() {
         }
         if (validadorUso) {
             var jsonTemp = await analizewithChrome(text);
-            if (jsonTemp === false) { return }
+            if (jsonTemp === false || jsonTemp === 'restart_required') 
+                { return }
             json = String(jsonTemp).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').replace(/^`/, '').replace(/`$/, '');
             json = json.replace('"}', '"]}');
             await chrome.storage.sync.set({ uselocal: true });
-        }else{
+        } else {
             return;
         }
 
@@ -677,7 +678,7 @@ async function analizePertinenceWithIA() {
 
         let summary = restpuJ.summary;
         if (summary) {
-            document.getElementById('summary').innerHTML = `<label><strong>${leng.SUMMARY}:</strong>${summary}</label>`;
+            document.getElementById('summary').innerHTML = `<label><strong>${leng.SUMMARY}:</strong> ${summary}</label>`;
         }
 
         let issues = restpuJ.issues;//array
@@ -726,12 +727,18 @@ async function analizePertinenceWithIA() {
 
     } catch (err) {
         Swal.close();
-        Swal.fire({
-            title: 'Error',
-            html: leng.ERROR_EN_ANALISIS,
-            icon: 'error',
-            confirmButtonText: leng.BTN_ENTIENDO
-        });
+
+        const { modelPendingRestart } = await chrome.storage.sync.get(['modelPendingRestart']);
+        if (modelPendingRestart === false) {
+            Swal.fire({
+                title: 'Error',
+                html: leng.ERROR_EN_ANALISIS,
+                icon: 'error',
+                confirmButtonText: leng.BTN_ENTIENDO
+            });
+        }else{
+            await chrome.storage.sync.set({ modelPendingRestart: false });
+        }
     }
 }
 
@@ -813,24 +820,23 @@ async function humanizar() {
     }
 }
 
-async function invitame()
-{
+async function invitame() {
     Swal.fire({
-    title: leng.COFFEE_TITULO + ' ☕',
-    html: leng.COFFEE_MSG,
-    imageUrl: '/img/cafe.png',
-    imageWidth: 128,
-    imageHeight: 128,
-    imageAlt: 'Café icon',
-    showCancelButton: true,
-    showConfirmButton: false,                 // activa un segundo botón
-    confirmButtonText: 'OK',
-    cancelButtonText: leng.COFFEE_BTN,    // texto del botón extra
-    width: "80%"
-  }).then((result) => {
-    if (result.dismiss === Swal.DismissReason.cancel) {
-      window.open('https://buymeacoffee.com/felipefariasa', '_blank');
-    }
-  });
+        title: leng.COFFEE_TITULO + ' ☕',
+        html: leng.COFFEE_MSG,
+        imageUrl: '/img/cafe.png',
+        imageWidth: 128,
+        imageHeight: 128,
+        imageAlt: 'Café icon',
+        showCancelButton: true,
+        showConfirmButton: false,                 // activa un segundo botón
+        confirmButtonText: 'OK',
+        cancelButtonText: leng.COFFEE_BTN,    // texto del botón extra
+        width: "80%"
+    }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.cancel) {
+            window.open('https://buymeacoffee.com/felipefariasa', '_blank');
+        }
+    });
 }
 

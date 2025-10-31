@@ -74,10 +74,12 @@
 
     "DOWNLOAD":"Downloading model...",
     "PREPARE_IA":"Preparing AI (download)",
-    "MSG_INTERNO_DOWNLOAD": "If a browser dialog box appears, accept to allow the download.<br>This may take several minutes, do not close this sidepanel<br><strong>Important:</strong> At the end, we will attempt to perform the query. If an error occurs, it may be necessary to restart Google Chrome to activate AI.",
+    "MSG_INTERNO_DOWNLOAD": "If a browser dialog box appears, accept to allow the download.<br>This may take several minutes, do not close this sidepanel<br><strong>Important:</strong> At the end, we will attempt to perform the query. If an error occurs, <strong>it may be necessary to restart Google Chrome to activate AI.</strong>",
     "AVISO_DESCARGA":"This model is not on this computer. Starting download...",
     "DOWNLOAD_WAIT":"Downloading, wait...",
     "AVANCE":"Progress",
     "NOCOMPATIBLE":"Your device is not compatible",
-    "MSG_NOCOMPATIBLE":"<p>This equipment does not meet the requirements to run the model <strong>on-device</strong>.</p><p>Possible solutions: update Chrome/Chromium, enable hardware acceleration or use another computer.</p><p>From the settings you can select to use Hakaboost with OpenAI or Gemini. (cloud).</p>"
+    "MSG_NOCOMPATIBLE":"<p>This equipment does not meet the requirements to run the model <strong>on-device</strong>.</p><p>Possible solutions: update Chrome/Chromium, enable hardware acceleration or use another computer.</p><p>From the settings you can select to use Hakaboost with OpenAI or Gemini. (cloud).</p>",
+    "MSG_ESPERAIA":"Checking everything before downloading the Chrome (Local) Gemini Nano template. Do not close this sidepanel."
+
 }

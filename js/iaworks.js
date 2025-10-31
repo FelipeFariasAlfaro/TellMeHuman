@@ -246,7 +246,7 @@ async function callChromeAI(systemPrompt, userPrompt) {
   let debounceTimer = null;
 
   function safeCloseSwal() {
-    try { Swal.close(); } catch (e) {}
+    try { Swal.close(); } catch (e) { }
     modalType = null;
   }
 
@@ -311,7 +311,19 @@ async function callChromeAI(systemPrompt, userPrompt) {
 
   // abrimos spinner inicial
   safeCloseSwal();
+  const { uselocal } = await chrome.storage.sync.get('uselocal');
+  if(uselocal === false){
+    Swal.fire({
+        icon: 'info',
+        title: leng.CARGANDO,
+        text: leng.MSG_ESPERAIA,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
+  }else{
   showSpinnerModal();
+  }
 
   const { lenguaje } = await chrome.storage.sync.get(['lenguaje']);
 
@@ -383,9 +395,12 @@ async function callChromeAI(systemPrompt, userPrompt) {
 
           // Solo abrir modal de descarga si NO estaba disponible y es el primer evento
           if (!firstDownloadEventSeen && !alreadyAvailable) {
+            console.log("Descargaremos...");
             firstDownloadEventSeen = true;
-            try { Swal.close(); } catch (_) {}
+            try { Swal.close(); } catch (_) { }
             showDownloadModalOnce(leng.DOWNLOAD);
+          }else{
+            console.log("No descargamos");
           }
 
           // actualizar barra si estamos en modal de descarga
@@ -410,12 +425,14 @@ async function callChromeAI(systemPrompt, userPrompt) {
       safeCloseSwal();
       if (!successShown) {
         successShown = true;
+
         await Swal.fire({
           title: leng.DOWNLOAD_COMPLETE,
           html: `${leng.MSG_COMPLETE}`,
           icon: 'success',
           confirmButtonText: leng.BTN_ENTIENDO
         });
+        await chrome.storage.sync.set({ uselocal: true });
       }
 
       try { if (session && typeof session.destroy === 'function') session.destroy(); } catch (dErr) { console.warn('destroy err', dErr); }
@@ -441,21 +458,16 @@ async function callChromeAI(systemPrompt, userPrompt) {
 
     return false;
   } finally {
-    try { 
-      if (session && typeof session.destroy === 'function') 
-        session.destroy(); 
-    } 
-    catch (destroyErr) { 
-      console.warn('Error destroying session', destroyErr); 
+    try {
+      if (session && typeof session.destroy === 'function')
+        session.destroy();
+    }
+    catch (destroyErr) {
+      console.warn('Error destroying session', destroyErr);
     }
     window.__callChromeAI_running = false;
   }
 }
-
-
-
-
-
 
 export async function testOpenAIConfig() {
   try {
